@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.2.5 (unreleased)
+
+- Blocks that pop into their drops no longer leave a smoke puff; they just crumble with their plop. The dust where blocks land and the puff when a repaired block drops in are small again.
+
+## 0.2.4 (unreleased)
+
+- A new, rounder explosion:
+  - a big glowing fireball dome that swells up, pales and breaks into puffs;
+  - a fiery shockwave ring across the ground;
+  - round puffs thrown up into a little mushroom cloud, cooling from yellow through orange and red to grey;
+  - white sparks as the fireball fades.
+- No more black outlines or pixel art turned to slanted angles; the smoke no longer floats off into the sky, the ring never sweeps under your feet, and in a cave the fireball and smoke fit under the ceiling.
+- Fixed: with Fabric API but without Sodium, the flying blocks were invisible (only their poofs showed).
+
+## 0.2.2 (unreleased)
+
+- Repair speed setting: `/havingablast repair speed <25-400>` (percent) and a slider in the settings. 100% is the old speed; 200% rebuilds a 1000-TNT crater (about 27,000 blocks) in about 11 seconds instead of 22.
+
 ## 0.2.1 (unreleased)
 
 - The repair animation lands cleanly: no more flickering as blocks drop into place. A block no longer blinks out for a few frames between its fly-in and the real block showing up (a see-through hole), no longer bulges over its neighbours (striped z-fighting) or bares their edges as it settles (thin lines along walls and floors). It lands with one short squash instead of a bouncy wobble.

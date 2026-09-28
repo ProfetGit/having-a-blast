@@ -10,7 +10,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 
 /**
- * /havingablast repair creeper|tnt|bed|anchor|crystal|fireball|wither [true|false], delay [seconds], status, now. Operators only. There is no real game
+ * /havingablast repair creeper|tnt|bed|anchor|crystal|fireball|wither [true|false], delay [seconds], speed [percent],
+ * status, now. Operators only. There is no real game
  * rule: 26.x syncs game rule values to clients, and an unknown rule could break vanilla clients on a modded server.
  */
 public final class RepairCommand {
@@ -35,6 +36,13 @@ public final class RepairCommand {
                         Config.save();
                         return say(c.getSource(), "Repair now starts " + Config.get().repairDelaySeconds + " s after a blast");
                     })))
+                .then(Commands.literal("speed")
+                    .executes(c -> say(c.getSource(), "Repair speed is " + Config.get().repairSpeed + "%"))
+                    .then(Commands.argument("percent", IntegerArgumentType.integer(25, 400)).executes(c -> {
+                        Config.get().repairSpeed = IntegerArgumentType.getInteger(c, "percent");
+                        Config.save();
+                        return say(c.getSource(), "Repair speed now " + Config.get().repairSpeed + "%");
+                    })))
                 .then(Commands.literal("status").executes(c -> {
                     int n = 0, g = 0;
                     for (ServerLevel level : c.getSource().getServer().getAllLevels()) {
@@ -44,7 +52,7 @@ public final class RepairCommand {
                     }
                     StringBuilder on = new StringBuilder();
                     for (Kind k : Kind.values()) on.append(on.isEmpty() ? "" : ", ").append(k.label).append(' ').append(onOff(k.enabled()));
-                    return say(c.getSource(), "Repair: " + on + "; delay " + Config.get().repairDelaySeconds + " s; " + n + " blocks in " + g + " blasts waiting");
+                    return say(c.getSource(), "Repair: " + on + "; delay " + Config.get().repairDelaySeconds + " s; speed " + Config.get().repairSpeed + "%; " + n + " blocks in " + g + " blasts waiting");
                 }))
                 .then(Commands.literal("now").executes(c -> {
                     int n = 0;

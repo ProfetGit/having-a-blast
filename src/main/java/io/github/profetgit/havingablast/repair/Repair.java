@@ -304,7 +304,9 @@ public final class Repair {
         Ledger l = Ledger.of(level);
         if (l.groups.isEmpty()) return false;
         long now = level.getGameTime();
-        int budget = 256;
+        int speed = Math.max(25, Math.min(400, Config.get().repairSpeed));
+        int cap = Math.max(1, 64 * speed / 100);
+        int budget = Math.max(256, cap * 4);
         for (Ledger.Group g : new ArrayList<>(l.groups.values())) {
             if (budget <= 0) break;
             if (g.decorAt >= 0) {
@@ -318,7 +320,7 @@ public final class Repair {
             if (g.due > now) continue;
             // after a restart the order (not saved) is built again from what is left; restored positions are kept
             if (!g.started || g.order == null) start(level, l, g);
-            int perTick = Math.max(1, Math.min(64, (g.order.length + 39) / 40));
+            int perTick = (int) Math.max(1, Math.min(cap, (g.order.length * (long) speed + 3999) / 4000));
             int done = 0;
             while (g.next < g.order.length && done < perTick && budget > 0) {
                 long p = g.order[g.next];

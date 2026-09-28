@@ -97,6 +97,11 @@ public final class Blasts {
         BlockModelRenderStateAccessor a = (BlockModelRenderStateAccessor) m.rs;
         // an ObjectArrayList like vanilla's own submit passes: with Sodium an immutable List.copyOf drew nothing
         m.parts = new it.unimi.dsi.fastutil.objects.ObjectArrayList<>(a.havingablast$parts() == null ? List.of() : a.havingablast$parts());
+        // with Fabric API the resolver puts even vanilla models into its own mesh and leaves no parts, and that mesh
+        // never showed from this pass without Sodium (invisible debris, 0.2.3): take the model's parts directly
+        if (m.parts.isEmpty() && !m.rs.isEmpty() && a.havingablast$special() == null) {
+            mc.getModelManager().getBlockStateModelSet().get(state).collectParts(net.minecraft.util.RandomSource.create(42), m.parts);
+        }
         m.type = a.havingablast$renderType();
         m.fast = a.havingablast$special() == null && a.havingablast$transformation() == null && m.type != null;
         // the model's own tint layers (what vanilla's submit passes); world-dependent ones (grass, leaves) are recoloured

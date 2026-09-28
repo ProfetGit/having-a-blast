@@ -27,6 +27,8 @@ public final class Config {
     public boolean witherRepair = false;
     /** Seconds from the blast until its repair starts. */
     public int repairDelaySeconds = 30;
+    /** Rebuild speed in percent (25 to 400): 100 puts a small hole back in about 2 s and a big one at up to 64 blocks a tick. */
+    public int repairSpeed = 100;
     /** Most blocks the ledger holds; a blast beyond it breaks as in vanilla. */
     public int maxPendingBlocks = 200_000;
     /** Client: the cartoon explosion (debris, puff, pops). */

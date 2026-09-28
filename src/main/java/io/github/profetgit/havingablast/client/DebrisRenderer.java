@@ -223,12 +223,13 @@ public final class DebrisRenderer {
     }
 
     /**
-     * Sodium bundles the Fabric Rendering API, which draws block models from BlockModelRenderState.submit; a direct
-     * submitBlockModel then drew nothing (checked with Sodium 0.9.2 on 26.3). With it present, the debris go through
-     * vanilla's submit (a small list copy per call); without it, the cached parts go straight to the collector.
+     * Sodium draws block models from BlockModelRenderState.submit; a direct submitBlockModel then drew nothing (checked
+     * with Sodium 0.9.2 on 26.3). With it present, the debris go through vanilla's submit (a small list copy per call);
+     * without it, the cached parts go straight to the collector. Fabric API alone (Indigo) is the other way round:
+     * through BlockModelRenderState.submit the debris were invisible (0.2.3), the direct path draws them.
      */
-    static final boolean SLOW = BlastClient.FX.contains("slowpath") || BlastClient.present("net.fabricmc.fabric.api.renderer.v1.Renderer")
-        || BlastClient.present("net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer");
+    static final boolean SLOW = BlastClient.FX.contains("slowpath") || !BlastClient.FX.contains("fastpath")
+        && BlastClient.present("net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer");
 
     static void submitModel(Blasts.Model m, PoseStack ps, SubmitNodeCollector c, int light, int overlay) {
         if (m.fast && !SLOW) {

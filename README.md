@@ -9,7 +9,7 @@
 
 ![Features](https://raw.githubusercontent.com/ProfetGit/having-a-blast/main/docs/desc/title-features.png)
 
-- **Cartoon explosions.** A star flash, a chunky pixel-art fireball that cools into smoke, a shockwave ring and flying sparks.
+- **Cartoon explosions.** A glowing pixel-art fireball dome that swells and fades, a fiery shockwave ring, round puffs thrown up into a little mushroom cloud, and flying sparks.
 - **Blocks you can follow.** The blasted blocks fly out on real arcs, tumble, squash and bounce where they land, then pop one after another into their drops.
 - **Wind-up.** Lit TNT pumps and holds its breath before the bang, and creepers swell further.
 - **Auto repair** for creeper, TNT, bed, respawn anchor, end crystal, ghast fireball and wither blasts. Each has its own switch, and all are off by default. After a delay the hole rebuilds itself, bottom row first, with the blocks hopping back out of the ground.
@@ -23,7 +23,7 @@ Just blow something up. The cartoon explosions are on from the start. To turn on
 
 ![Settings](https://raw.githubusercontent.com/ProfetGit/having-a-blast/main/docs/desc/title-settings.png)
 
-Open them in Mod Menu (Fabric, Quilt) or the Mods list (NeoForge, Forge): cartoon explosions on or off, intensity, pops, the most debris at once, the repair animation, one repair switch per explosion type, and the repair delay (30 seconds by default). They're saved in `config/havingablast.json`.
+Open them in Mod Menu (Fabric, Quilt) or the Mods list (NeoForge, Forge): cartoon explosions on or off, intensity, pops, the most debris at once, the repair animation, one repair switch per explosion type, the repair delay (30 seconds by default) and the repair speed. They're saved in `config/havingablast.json`.
 
 ![Commands](https://raw.githubusercontent.com/ProfetGit/having-a-blast/main/docs/desc/title-commands.png)
 
@@ -31,6 +31,7 @@ For operators, on a server with the mod:
 
 - `/havingablast repair <creeper|tnt|bed|anchor|crystal|fireball|wither> [true|false]`: turn repair on or off for one explosion type.
 - `/havingablast repair delay [seconds]`: how long after the blast the rebuild starts.
+- `/havingablast repair speed [percent]`: how fast the hole rebuilds (25 to 400, default 100).
 - `/havingablast repair status`: what's switched on and how many blocks are waiting.
 - `/havingablast repair now`: rebuild everything that's waiting right away.
 

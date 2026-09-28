@@ -65,3 +65,90 @@ rotations or packet cadences to measure. The per-path continuity check replaces 
 
 ## Not done in this pass
 - lablib's lockstep 60 fps reel and curves. By-ear sound review.
+
+# Polish log: Having a Blast 0.2.3, the explosion (2026-09-28)
+
+The user: "something is off with the explosion animation, maybe the smoke is too much". Lab = the demo director
+(`dev/demo/run.sh`, ~120 fps real-time frames), captures in `dev/demo/.work/pol-*` (base = the 0.2.2 jar in
+`dev/lab/baseline/`), reels in `dev/demo/out/polish-023/`. The user's profile has Explosive Enhancement disabled, so
+they see this effect (through Complementary shaders).
+
+## Findings (baseline, full-size frames; tnt1 / creeper / tnt10 / cave × side, hero, first person, and shaders)
+1. Slanted texels: smoke puffs were rolled by `roll * 0.5` of a quarter turn, i.e. 45 degrees, and the fire layers by
+   +0.4/+1.1/+2.0 rad plus a slow spin. Rotated pixel art showed dotted diagonal outlines and octagon silhouettes.
+2. Sticker pile: every puff had its own dark rim, so the cloud read as a stack of outlined coins, each with its own
+   highlight ring.
+3. "Fried egg": the smoke puff grew (×1.2 overshoot) behind a fire layer that was still burning, leaving a red or
+   orange disc in the middle of a white puff for 2–3 ticks (t+4…7).
+4. Too much smoke for too long: puffs up to 5.3 blocks (TNT), life 18–27 ticks, accelerating rise (0.006·tb²) to
+   ~7 blocks: the cloud detached and sailed off into the sky while debris were still landing. Fire read for ~4 ticks,
+   smoke for ~22.
+5. Shockwave ring: 15.5 blocks across for TNT, lit at block light 13, 8 ticks: from first person and in the creeper
+   scene it swept under the camera as a huge jagged white band.
+6. Light snap: each puff switched from block light 13 to the surroundings at its own tb = 6, so in the dark puffs
+   popped darker one by one.
+7. Dust skirt: 12 puffs rolling out to ~6.4 blocks, 13–19 ticks, like grey rocks on the grass.
+8. Cave: the rising cloud was cut flat by the ceiling.
+
+## Changes (0.2.3)
+- Sprites: rimless fills and one-pixel-grown silhouettes for every puff, dust and breakup frame (sheet 256×512, cells
+  from y 256). Breakup frames are shifted to fit the cell (some lobes were cut flat by the border before).
+- Outline behind: each puff draws its silhouette in ink pushed 1.6·scale blocks further along the view ray and scaled
+  by the same factor (same projection, deeper), so overlapping puffs hide each other's outlines: one outline per cloud.
+- One puff per billow: the outer fire layer darkens (value first: red → deep red → soot), then cools to grey and takes
+  the smoke shading once the inner layers are gone. Inner layers go out at 30 % size instead of shrinking to a dot.
+- Quarter turns only; shaded fills never turn or mirror (the light stays upper left).
+- Smoke: puffs 1.6–2.4 × scale, life 14–20, rise that slows (≈2.9 blocks max for TNT), gone by ~t+20.
+- Smoke light is one value per blast: full glow until t 4, easing to the place's light by t 12.
+- Ring: 6 ticks, ≤ 2.2 + 5.4 × scale blocks, stops 2.5 blocks short of the camera, block light ≥ 8 (was 13).
+- Dust skirt: reach ~4.8 blocks, life 9–13, rimless fill + outline.
+- Ceiling: read at the first frame and at t 3 (after the crater), eased over 3 ticks; puffs slide down to fit under it.
+- The star flash no longer spins.
+- Taste option: `-Dhavingablast.fx=whitesmoke` keeps the old warm-white smoke ramp with every other fix
+  (`smoke-colour-pick.mp4`); it goes peach between fire and smoke. Default: soot to grey.
+
+## Measured
+- Mod render time per frame (26.3 Fabric, side cam, load average 9–12, noisy): tnt1 mean 429 → 402 µs, p99 4.7 → 4.0 ms;
+  tnt10 mean 426 → 531 µs, p99 2.5 → 2.5 ms. The outline pass adds one quad per puff and per dust puff.
+- Every capture's checks pass (frame budget, continuity, count_match, pops, drops).
+
+## Rejected / not done
+- Soft (alpha) smoke: the sheet uses a cutout render type; translucency would need sorting and breaks the pixel look.
+- Clamping puffs to walls (only the ceiling is handled).
+- The pop tail (debris rest ~8 ticks, then pop until ~t+40) is unchanged: approved earlier, not part of this complaint.
+
+# 0.2.4: the round look (2026-09-28, same day)
+
+The user on 0.2.3: "definitely better, but something's still off, maybe too cartoony, maybe too realistic, maybe it
+needs some roundness"; they pointed at Explosive Enhancement (MIT, disabled in their profile), which "looked freaking
+perfect" with this mod's debris, and asked not to copy it exactly. EE jar decompiled (Vineflower from the Gradle cache)
+into the session scratchpad, filmed with our debris as the reference (`dev/demo/.work/ee2-*`).
+
+## What EE does (and why it read better)
+- One fireball quad (10 blocks for TNT, centre 0.5 above the blast, so the ground hides its lower half: a dome) that
+  animates by flipbook frames at a fixed size: the pixels never change size. Concentric colour bands, no outline.
+- A flat ring (14 blocks) flipbook, thick yellow/orange, lasting ~16 ticks.
+- Six small 16 px puffs thrown up 6-10 blocks into a mushroom, flipbook yellow → red → grey → specks.
+- A white spark star/ray burst late, as the fireball pales. Swell to full takes ~6 ticks.
+- Colour is painted into the textures; translucent fades.
+
+## Ours (0.2.4)
+- New frames in `dev/fx/make_fx.py` (`round_fx`), colour baked: a lit sphere (bands offset up-left, shade crescent
+  lower right, darker rim) growing 0-5, full 6-7, paling 8-9, light lumps 10-11 (lumps instead of a dither dissolve,
+  which read as a screen door); puffs on a 16 px grid at 2x cooling yellow → brick → greys → bits; round dust puffs;
+  rings with a yellow front and orange trail, thinning, going red and broken. Unused old cells were dropped.
+- One dome (sc × 6.8 blocks) at ground + 0.5, swelling over 5 ticks, gone at 12.2; shrinks to fit under a ceiling.
+  Two small satellite balls were tried and dropped: they read as eyes.
+- Ring sc × 10.5 blocks, 1.8 ticks per frame (14 ticks), scaled down to stop 2.5 blocks short of the camera.
+- Mushroom: 2 stem puffs + a wide cap ring + a top puff (heights up to sc × 6.6), exp ease-out launch (τ 2.6 ticks),
+  fire colours for the first 22 % of life (a red puff over the pale dome read as an eye).
+- Sparks in two waves: yellow at the blast, longer white ones as the dome pales.
+- All dust, landing puffs, pop poofs, repair poofs and bubbles use the round dust frames (no rims anywhere).
+
+## Also found: invisible debris with Fabric API (all versions so far)
+- With Fabric API and no Sodium the flying blocks were invisible (their poofs showed). Fabric's renderer API puts even
+  vanilla models into its own mesh when `BlockModelResolver.update` runs, leaving no vanilla parts, and neither our
+  direct submit (no parts) nor `BlockModelRenderState.submit` (the mesh) drew anything from this pass under Indigo.
+  Fix: take the parts from `BlockStateModelSet.get(state).collectParts(...)` when the resolver left none, and use
+  `BlockModelRenderState.submit` only when Sodium is present. Checked: Fabric API alone, the full Sodium profile, and
+  no extra mods all draw the debris (leaves, glass panes, grass tint included, garden scene).

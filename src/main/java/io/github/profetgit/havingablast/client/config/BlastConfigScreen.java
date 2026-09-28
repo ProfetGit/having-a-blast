@@ -49,7 +49,9 @@ public final class BlastConfigScreen extends OptionsSubScreen {
             OptionInstance.createBoolean("Wither damage repairs", OptionInstance.cachedConstantTooltip(Component.literal("The wither's spawn blast, its skulls and the blocks it breaks when hurt. Off by default.")),
                 c.witherRepair, v -> c.witherRepair = v),
             new OptionInstance<>("Repair delay", OptionInstance.cachedConstantTooltip(Component.literal("Seconds from the blast until the rebuild starts.")),
-                (caption, v) -> Component.literal("Repair delay: " + v + " s"), new OptionInstance.IntRange(1, 300), Math.max(1, c.repairDelaySeconds), v -> c.repairDelaySeconds = v));
+                (caption, v) -> Component.literal("Repair delay: " + v + " s"), new OptionInstance.IntRange(1, 300), Math.max(1, c.repairDelaySeconds), v -> c.repairDelaySeconds = v),
+            new OptionInstance<>("Repair speed", OptionInstance.cachedConstantTooltip(Component.literal("How fast the hole rebuilds. 100%: a small hole in about 2 s, a big one at up to 64 blocks a tick.")),
+                (caption, v) -> Component.literal("Repair speed: " + v * 25 + "%"), new OptionInstance.IntRange(1, 16), Math.max(1, Math.min(16, c.repairSpeed / 25)), v -> c.repairSpeed = v * 25));
     }
 
     @Override
