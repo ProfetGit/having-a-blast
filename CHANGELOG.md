@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1 (unreleased)
+
+- The repair animation lands cleanly: no more flickering as blocks drop into place. A block no longer blinks out for a few frames between its fly-in and the real block showing up (a see-through hole), no longer bulges over its neighbours (striped z-fighting) or bares their edges as it settles (thin lines along walls and floors). It lands with one short squash instead of a bouncy wobble.
+
 ## 0.2.0 (unreleased)
 
 - Item frames (with their item and rotation), glow item frames, paintings and armor stands (with their equipment) come back with a repair instead of dropping. They hang back up with a puff once the wall is in. One whose spot a player built over drops as usual.

@@ -53,11 +53,12 @@ final class Scenes {
         cmd(mc, String.format(Locale.ROOT, "execute in minecraft:overworld run tp @e[type=armor_stand,name=cam,limit=1] %.2f %.2f %.2f %.2f %.2f", x, y, z, yaw, pitch));
     }
 
-    /** The scene's camera for -Dhavingablast.demo.cam: side (16 blocks, level), hero (low three-quarter), fp (a player 8 blocks away). */
+    /** The scene's camera for -Dhavingablast.demo.cam: side (16 blocks, level), hero (low three-quarter), fp (a player 8 blocks away), near (close on the front, for the rebuild). */
     static void camera(Minecraft mc, double tx, double ty, double tz, double dist) {
         switch (Director.CAM) {
             case "hero" -> camera(mc, tx - dist * 0.55, ty + 0.6, tz - dist * 0.62, tx, ty + 1.2, tz);
             case "fp" -> camera(mc, tx, ty + 1.62, tz - dist * 0.55, tx, ty + 0.8, tz);
+            case "near" -> camera(mc, tx - dist * 0.22, ty + 1.2, tz - dist * 0.48, tx, ty + 0.6, tz - 1);
             default -> camera(mc, tx - dist, ty + dist * 0.28, tz, tx, ty + 0.8, tz);
         }
     }

@@ -22,7 +22,8 @@ import org.joml.Quaternionf;
  * The repair animation, recognised on the client without any packets of its own: the client remembers every block it
  * saw blow up (and where its debris came to rest); when the server puts exactly that block back at that spot, the
  * update is held while the block flies back in, grows from its debris size, turns upright and drops into its slot with
- * a squash and a settle; then the real block (and any block entity data held with it) is applied. Plops fall in pitch
+ * one squash that eases back to full height; then the real block (and any block entity data held with it) is applied, the flyer staying
+ * drawn over it until the block's chunk mesh is up (HANDOFF). Plops fall in pitch
  * as the wall closes, the blast's rising plops in reverse. Variants (-Dhavingablast.fx): rise (default: hops out of the
  * ground below), rewind (from where the debris landed), drop (falls in from above).
  */
@@ -70,7 +71,20 @@ public final class Rebuild {
     static final RandomSource RNG = RandomSource.create();
     static final int MAX_BLOWN = 60_000;
     static final long FORGET_TICKS = 20L * 60 * 30;
-    static final float SETTLE = 5;
+    static final float SETTLE = 3;
+    /**
+     * Ticks the flyer stays drawn after its real block went in. The block only shows once its chunk section is re-meshed,
+     * 1 to 3 frames later (more under load), and drawing nothing in between left a see-through hole that blinked open and
+     * shut across the wall as the blocks landed.
+     */
+    static final float HANDOFF = 2;
+    /**
+     * In the slot (settle and hand-off) the flyer is 1.0005 blocks: exactly 1 left hairline cracks along its edges that
+     * showed the dark hole behind. In the slot only its height springs: bulging 12% wider slid its faces over the
+     * neighbours' faces in the same plane (a wall front, the ground), which z-fought in stripes, and narrowing bared a
+     * sliver of the top of the block below, a light line blinking with the wobble.
+     */
+    static final float SLOT_SCALE = 1.0005f;
     /** Set while this class applies a held update itself. */
     static boolean applying;
     static int sequence;
@@ -202,7 +216,7 @@ public final class Rebuild {
         float now = Blasts.ticks;
         for (Flyer f : new ArrayList<>(FLYING.values())) {
             if (Float.isNaN(f.t0)) f.t0 = now;
-            if (now - f.t0 > f.dur + SETTLE + 2) {
+            if (now - f.t0 > f.dur + SETTLE + HANDOFF + 2) {
                 apply(mc.level, f);
                 FLYING.remove(f.pos.asLong());
             }
@@ -231,33 +245,36 @@ public final class Rebuild {
                 x = f.sx + (cx - f.sx) * e;
                 z = f.sz + (cz - f.sz) * e;
                 y = f.sy + (cy - f.sy) * e + f.arc * 4 * u * (1 - u);
-                scale = f.size + (1 - f.size) * smooth(u * 1.3f);
+                // full size before the last stretch: a flyer still growing (or narrowed by the stretch) as it dropped into its
+                // slot bared a thin line of the block below, or of the dark hole, around its edges
+                scale = f.size + (1 - f.size) * smooth(u * 1.45f);
                 q.set(f.spin).slerp(DebrisRenderer.Q2.identity(), smooth(u * 1.15f));
-                // stretched along the flight toward the end, so it reads as dropping in
-                if (u > 0.7f) {
-                    float k = (u - 0.7f) / 0.3f;
-                    sy = 1 + 0.18f * k;
-                    sxz = 1 - 0.08f * k;
-                }
+                // stretched taller toward the end, so it reads as dropping in (never narrower than its slot)
+                if (u > 0.7f) sy = 1 + 0.18f * (u - 0.7f) / 0.3f;
             } else {
                 // squash into the slot, spring back a little taller, settle; the real block goes in when it has settled
                 if (!f.landedFx) land(level, f, now);
                 float s2 = t - f.dur;
                 if (s2 >= SETTLE) {
                     if (!f.applied) apply(level, f);
-                    if (done == null) done = new ArrayList<>();
-                    done.add(f);
-                    continue;
+                    if (s2 >= SETTLE + HANDOFF || level.getBlockState(f.pos) != f.state) {
+                        if (done == null) done = new ArrayList<>();
+                        done.add(f);
+                        continue;
+                    }
                 }
                 x = cx;
                 y = cy;
                 z = cz;
                 q.identity();
-                scale = 1;
-                float e = (float) Math.exp(-s2 / 1.3f);
-                float w = (float) Math.cos(s2 * 2.1f) * e;
-                sy = 1 - 0.22f * w;
-                sxz = 1 + 0.12f * w;
+                scale = SLOT_SCALE;
+                // one squash on contact that eases back to exactly full height, never past it: a springy settle bobbed the
+                // block up and down around flush 2-3 times, and each crossing bared its edges against the neighbours (dark
+                // seams in a floor, light lines on a wall) that blinked with the bob
+                // shallow: in a floor or a wall the dip shows as a dark outline against the neighbours while it recovers
+                float k = 1 - smooth(s2 / SETTLE);
+                sy = 1 - 0.08f * k * k;
+                sxz = 1;
             }
             int light = DebrisRenderer.lightAt(level, x, y + 0.6, z);
             ps.pushPose();

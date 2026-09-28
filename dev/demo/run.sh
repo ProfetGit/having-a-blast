@@ -8,7 +8,7 @@
 # Usage: run.sh <mc-version> <out-dir> [scenes, comma separated]
 # Env: LOADER=fabric|neoforge|forge|vanilla (default fabric; vanilla: the plain client, no mod, for interop; Forge and NeoForge come from the installs Tidy Pockets' self-test
 #      made, TidyPockets/dev/selftest/install_loaders.sh), MODS="a.jar:b.jar" adds mods, PACKS="x.zip:y.zip" adds
-#      resource packs and enables them, FRAMES=0 (checks only, no screenshots), CAM=side|hero|fp (camera),
+#      resource packs and enables them, FRAMES=0 (checks only, no screenshots), CAM=side|hero|fp|near (camera),
 #      FPS=<cap> (default 120; 0 = uncapped), WIDTH/HEIGHT (default 960x540), VANILLA=1 (the mod's visuals off, for
 #      vanilla-vs-mod captures), FX=<name> (-Dhavingablast.fx, a look variant under review), WORK_TAG=x (own game
 #      dir, so runs of one loader can go in parallel), SKIP_BUILD=1, SERVER=host:port (join a server; dev/demo/interop.py),
