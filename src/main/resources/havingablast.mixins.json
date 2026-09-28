@@ -1,0 +1,37 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.github.profetgit.havingablast.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "common.ArmorStandInvoker",
+    "common.ArmorStandMixin",
+    "common.BedBlockMixin",
+    "common.BlockAttachedEntityMixin",
+    "common.CommandsMixin",
+    "common.FallingBlockEntityMixin",
+    "common.FireBlockMixin",
+    "common.ItemFrameMixin",
+    "common.LevelMixin",
+    "common.PaintingMixin",
+    "common.RespawnAnchorBlockMixin",
+    "common.ServerExplosionMixin",
+    "common.ServerLevelMixin",
+    "common.ServerPlayerGameModeMixin",
+    "common.WitherBossMixin"
+  ],
+  "client": [
+    "client.BlockModelRenderStateAccessor",
+    "client.ClientLevelMixin",
+    "client.ClientPacketListenerMixin",
+    "client.CreeperRendererMixin",
+    "client.EntityRenderDispatcherMixin",
+    "client.LevelRendererMixin",
+    "client.MinecraftMixin",
+    "client.PrimedTntMixin",
+    "client.TntRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

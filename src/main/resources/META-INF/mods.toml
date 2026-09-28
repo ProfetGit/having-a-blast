@@ -1,0 +1,21 @@
+modLoader = "javafml"
+loaderVersion = "[0,)"
+license = "All Rights Reserved"
+
+[[mods]]
+modId = "havingablast"
+version = "${version}"
+displayName = "${name}"
+authors = "${author}"
+displayURL = "${homepage}"
+logoFile = "assets/havingablast/icon.png"
+logoBlur = false
+description = '''${description}'''
+displayTest = "IGNORE_ALL_VERSION"
+
+[[dependencies.havingablast]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[${mc},${mc_next})"
+ordering = "NONE"
+side = "BOTH"

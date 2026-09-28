@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "havingablast",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "${description}",
+  "authors": ["${author}"],
+  "contact": { "homepage": "${homepage}" },
+  "license": "LicenseRef-All-Rights-Reserved",
+  "icon": "assets/havingablast/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["io.github.profetgit.havingablast.platform.fabric.FabricEntry"],
+    "modmenu": ["io.github.profetgit.havingablast.platform.fabric.ModMenuEntry"]
+  },
+  "mixins": ["havingablast.mixins.json"],
+  "depends": {
+    "fabricloader": ">=${fabric_loader}",
+    "minecraft": "~${mc}",
+    "java": ">=25"
+  }
+}

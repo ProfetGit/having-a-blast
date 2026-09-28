@@ -1,0 +1,33 @@
+package io.github.profetgit.havingablast.mixin.common;
+
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import io.github.profetgit.havingablast.repair.Kind;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ExplosionDamageCalculator;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.phys.Vec3;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+
+/** A bed's explosion has no source entity: name it, so the bed toggle decides its repair. */
+@Mixin(BedBlock.class)
+public abstract class BedBlockMixin {
+    //? if >=26.3 {
+    @WrapOperation(method = "destroyOnUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;explode(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/damagesource/DamageSource;Lnet/minecraft/world/level/ExplosionDamageCalculator;Lnet/minecraft/world/phys/Vec3;FZLnet/minecraft/world/level/Level$ExplosionInteraction;)V"))
+    //?} else {
+    /*@WrapOperation(method = "useWithoutItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;explode(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/damagesource/DamageSource;Lnet/minecraft/world/level/ExplosionDamageCalculator;Lnet/minecraft/world/phys/Vec3;FZLnet/minecraft/world/level/Level$ExplosionInteraction;)V"))
+    *///?}
+    private void havingablast$bed(Level level, Entity source, DamageSource damage, ExplosionDamageCalculator calc, Vec3 at, float power, boolean fire,
+        Level.ExplosionInteraction interaction, Operation<Void> original) {
+        Kind outer = Kind.BLOCK_SOURCE.get();
+        Kind.BLOCK_SOURCE.set(Kind.BED);
+        try {
+            original.call(level, source, damage, calc, at, power, fire, interaction);
+        } finally {
+            Kind.BLOCK_SOURCE.set(outer);
+        }
+    }
+}
