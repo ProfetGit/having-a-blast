@@ -2,12 +2,14 @@
 """Compose the Modrinth description banner (3:1) from Blockbench renders in dev/icon/banner_frames/.
 
 Outputs: dev/icon/out/banner.png (static, STILL_FRAME) and dev/icon/out/banner-animated.gif (full loop).
-Art: dev/icon/build_scene.js rendered with HB.camera(0.16) -> banner_frames/ (1600px, 1:1, no resampling).
+Art: dev/icon/build_scene.js rendered with HB.camera(0.15) -> banner_frames/ (1600px, 1:1, no resampling).
 Background, title and tagline: dev/icon/sprites/banner_*.aseprite, scaled up nearest-neighbour."""
 import sys
 from pathlib import Path
 
 from PIL import Image, ImageFilter
+
+from make_icon import START_FRAME, clean, compose as icon_compose
 
 ROOT = Path(__file__).resolve().parent.parent
 ICON = ROOT / "dev" / "icon"
@@ -15,8 +17,8 @@ SPRITES = ICON / "sprites"
 DIST = ICON / "out"   # ./gradlew dist wipes dist/
 W, H = 1536, 512
 FPS = 25
-STILL_FRAME = 26  # the fireball with the blocks just launched
-ART_OFFSET = (369, -562)  # banner = frame + offset: the icon crop's centre at (1165, 262)
+STILL_FRAME = 42  # the dirt hole with the pieces landed around it
+ART_OFFSET = (370, -558)  # banner = frame + offset: the loop's extent centred at x 1160, y 256
 OUTLINE = 17
 LAYERS = (("banner_bg", 8, (0, 0)), ("banner_title_top", 6, (72, 97)), ("banner_title", 10, (70, 193)),
           ("banner_tagline", 6, (74, 361)))
@@ -34,7 +36,7 @@ def sprite(name: str, scale: int) -> Image.Image:
 def art(frame: Path) -> Image.Image:
     im = Image.open(frame).convert("RGBA")
     dx, dy = ART_OFFSET
-    return im.crop((-dx, -dy, W - dx, H - dy))
+    return clean(im.crop((-dx, -dy, W - dx, H - dy)))
 
 
 def corner_mask() -> Image.Image:
@@ -49,11 +51,7 @@ def corner_mask() -> Image.Image:
 
 
 def compose(a: Image.Image, bg: Image.Image, text: list[tuple[Image.Image, tuple[int, int]]]) -> Image.Image:
-    out = bg.copy()
-    outline = Image.new("RGBA", (W, H), (10, 12, 18, 0))
-    outline.putalpha(a.getchannel("A").filter(ImageFilter.MaxFilter(OUTLINE)))
-    out.alpha_composite(outline)
-    out.alpha_composite(a)
+    out = icon_compose(a, bg, OUTLINE)   # shadows under the outline, as in the icon
     for im, pos in text:
         out.alpha_composite(im, pos)
     return out
@@ -62,15 +60,17 @@ def compose(a: Image.Image, bg: Image.Image, text: list[tuple[Image.Image, tuple
 def main() -> None:
     files = sorted((ICON / "banner_frames").glob("frame_*.png"))
     if not files:
-        sys.exit("no frames in dev/icon/banner_frames - render them from Blockbench first (HB.camera(0.16))")
+        sys.exit("no frames in dev/icon/banner_frames - render them from Blockbench first (HB.camera(0.15))")
     (bg_name, bg_scale, _), *text_layers = LAYERS
     bg = sprite(bg_name, bg_scale)
     text = [(sprite(name, scale), pos) for name, scale, pos in text_layers]
+    files = files[START_FRAME:] + files[:START_FRAME]   # frame 0 is empty blue (the TNT is still falling in)
     frames = [compose(art(f), bg, text).convert("RGB") for f in files]
+    still_frame = (STILL_FRAME - START_FRAME) % len(files)
 
     DIST.mkdir(exist_ok=True)
     mask = corner_mask()
-    still = frames[STILL_FRAME].convert("RGBA")
+    still = frames[still_frame].convert("RGBA")
     still.putalpha(mask)
     still.save(DIST / "banner.png", optimize=True)
 

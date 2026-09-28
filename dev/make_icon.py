@@ -2,9 +2,12 @@
 """Compose the mod icon from Blockbench renders in dev/icon/frames/ (transparent 1600px PNGs, one per frame).
 
 Outputs go to dev/icon/out/ (./gradlew dist wipes dist/): icon-animated.gif (Modrinth, <= 256 KiB), icon-512.png,
+icon-static.png (512 px still for places without GIFs: the fireball over the dirt hole, STATIC_FRAME / STATIC_BOX),
 plus src/main/resources/assets/havingablast/icon.png (the mod icon in the jars) and dev/icon/contact.png.
 Scene + animation: dev/icon/build_scene.js -> dev/icon/having_a_blast_icon.bbmodel (sprites in dev/icon/sprites).
-Background: dev/icon/sprites/bg_flat.png (64px, flat colour + ground shadow placed for CROP).
+Background: dev/icon/sprites/bg_flat.png (64px flat colour). The scene's floor is rendered in the key colour #FF00FF,
+which becomes transparent here (clean(), shared with make_banner.py), so the floor is the background itself. Shadows are
+rendered in a second key, #00FFFF, and painted SHADOW_RGB here, underneath the outline (outline_mask()).
 
   python3 dev/make_icon.py             # the icon
   python3 dev/make_icon.py --options   # dev/icon/bg_options.png: candidate backgrounds with their GIF sizes
@@ -13,6 +16,7 @@ import io
 import sys
 from pathlib import Path
 
+import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -22,19 +26,22 @@ BACKGROUND = ICON / "sprites" / "bg_flat.png"
 MOD_ICON = ROOT / "src/main/resources/assets/havingablast/icon.png"
 S = 512
 FPS = 25
-STILL_FRAME = 0
+STILL_FRAME = 12   # the TNT on the floor, fuse lit
+START_FRAME = 12   # the GIF starts here (frame 0 is empty blue: the TNT is still falling in)
 GIF_SIZE = 256
 GIF_LIMIT = 256 * 1024
 PALETTE = 255
-# fixed crop of the 1600px renders: holds the landed blocks and the fireball; boom crumbs and the TNT's drop may leave it
-CROP = (435, 470, 1155, 1190)
+# fixed crop of the 1600px renders: holds the hole, the fireball and the landed pieces; crumbs and the TNT's drop may leave it
+CROP = (372, 420, 1202, 1250)
 OUTLINE = 19
-MOD_ICON_BOX = (100, 100, 420, 420)   # the mod icon is the rest pose, cut tighter out of the 512px still
+MOD_ICON_BOX = (158, 170, 368, 380)
+STATIC_FRAME = 26                    # the fireball over the fresh dirt hole
+STATIC_BOX = (68, 72, 460, 464)      # its tighter square crop, in 512px icon space, cut again from the 1600px render   # the mod icon is the TNT, cut tighter out of the 512px still
 
 # candidate backgrounds for --options: (name, flat, shadow)
 OPTIONS = [("dusk blue", "#35508A", "#2A4072"), ("night navy", "#23305E", "#1A2449"),
            ("slate teal", "#2A5C66", "#204950"), ("plum", "#4A3470", "#3A285A")]
-SHADOW = (32, 48, 28, 8)   # ellipse centre x, y, radii on the 64px grid
+SHADOW = (32, 58.5, 20, 4)   # ellipse centre x, y, radii on the 64px grid
 
 
 def flat_bg(flat: str, shadow: str) -> Image.Image:
@@ -48,10 +55,23 @@ def flat_bg(flat: str, shadow: str) -> Image.Image:
     return im.resize((S, S), Image.NEAREST)
 
 
-def compose(art: Image.Image, bg: Image.Image) -> Image.Image:
-    outline_layer = Image.new("RGBA", (S, S), (10, 12, 18, 0))
-    outline_layer.putalpha(art.getchannel("A").filter(ImageFilter.MaxFilter(OUTLINE)))
-    return Image.alpha_composite(Image.alpha_composite(bg, outline_layer), art)
+def split(art: Image.Image) -> tuple:
+    """(shadows, solid art): the shadows go under the outline, the outline hugs only the solid art."""
+    a = np.array(art)
+    sh = a[..., 3] == SHADOW_ALPHA
+    shadows, solid = a.copy(), a.copy()
+    shadows[~sh] = 0
+    shadows[sh, 3] = 255
+    solid[sh] = 0
+    return Image.fromarray(shadows), Image.fromarray(solid)
+
+
+def compose(art: Image.Image, bg: Image.Image, outline: int = OUTLINE) -> Image.Image:
+    shadows, solid = split(art)
+    outline_layer = Image.new("RGBA", solid.size, (10, 12, 18, 0))
+    outline_layer.putalpha(solid.getchannel("A").filter(ImageFilter.MaxFilter(outline)))
+    out = Image.alpha_composite(bg, shadows)
+    return Image.alpha_composite(Image.alpha_composite(out, outline_layer), solid)
 
 
 def gif_bytes(frames: list) -> bytes:
@@ -66,11 +86,28 @@ def gif_bytes(frames: list) -> bytes:
     return buf.getvalue()
 
 
+SHADOW_RGB = (42, 64, 114)   # #2A4072
+SHADOW_ALPHA = 254           # marks shadow pixels until compose(), so the outline skips them
+
+
+def clean(im: Image.Image) -> Image.Image:
+    """Key colour -> transparent, shadow key -> shadow blue, then drop stray specks (a group scaled to 0 can still
+    rasterise a pixel, and the outline would blow it up into a dot)."""
+    a = np.array(im.convert("RGBA"))
+    a[(a[..., 0] == 255) & (a[..., 1] == 0) & (a[..., 2] == 255)] = 0
+    a[(a[..., 0] == 0) & (a[..., 1] == 255) & (a[..., 2] == 255)] = SHADOW_RGB + (SHADOW_ALPHA,)
+    solid = a[..., 3] > 0
+    p = np.pad(solid, 2).astype(np.int16)
+    n = sum(p[2 + dy:2 + dy + solid.shape[0], 2 + dx:2 + dx + solid.shape[1]] for dy in range(-2, 3) for dx in range(-2, 3))
+    a[solid & (n <= 3)] = 0
+    return Image.fromarray(a)
+
+
 def arts() -> list:
     files = sorted((ICON / "frames").glob("frame_*.png"))
     if not files:
         sys.exit("no frames in dev/icon/frames - render them from Blockbench first")
-    return [Image.open(f).convert("RGBA").crop(CROP).resize((S, S), Image.NEAREST) for f in files]
+    return [clean(Image.open(f).crop(CROP)).resize((S, S), Image.NEAREST) for f in files]
 
 
 def options(art: list) -> None:
@@ -105,7 +142,11 @@ def main() -> None:
     still = frames[STILL_FRAME].convert("RGB")
     still.save(OUT / "icon-512.png", optimize=True)
     still.crop(MOD_ICON_BOX).resize((128, 128), Image.LANCZOS).save(MOD_ICON, optimize=True)
-    data = gif_bytes(frames)
+    f = (CROP[2] - CROP[0]) / S
+    box = tuple(round(CROP[i % 2] + v * f) for i, v in enumerate(STATIC_BOX))
+    raw = Image.open(sorted((ICON / "frames").glob("frame_*.png"))[STATIC_FRAME])
+    compose(clean(raw.crop(box)).resize((S, S), Image.NEAREST), bg).convert("RGB").save(OUT / "icon-static.png", optimize=True)
+    data = gif_bytes(frames[START_FRAME:] + frames[:START_FRAME])
     out = OUT / "icon-animated.gif"
     out.write_bytes(data)
 

@@ -75,6 +75,28 @@ PA.sprite_from_grid(OUT .. "grass_side", {
 sides("grass_side", { { leaf, "Zpqrstu" }, { dirt, "Xabcde" } })
 flash("grass_side")
 
+-- dirt: the island's lower layer and the crater floor; same pebbles as the grass side, own bevel
+PA.sprite_from_grid(OUT .. "dirt", {
+  "ddddddddddddddcb",
+  "dcccccccbcccdecb",
+  "dcdecccccccccccb",
+  "dccbcccdecccbccb",
+  "dcccccccbcccccdb",
+  "dccccccccccdeccb",
+  "dcdecccbccccbccb",
+  "dccbcccccccccccb",
+  "dcccccdeccccdecb",
+  "dcccccbcccccbccb",
+  "dccdeccccccccccb",
+  "dccbcccccdeccccb",
+  "dcccccccccbccccb",
+  "dcdecccccccccdcb",
+  "dccbcccccccccbcb",
+  "bbbbbbbbbbbbbbba",
+}, dirt)
+sides("dirt", { { dirt, "Xabcde" } })
+flash("dirt")
+
 -- stone: flat mid grey, two chunky cracks (dark line, light lip above), light patches
 PA.sprite_from_grid(OUT .. "stone", {
   "eeeeeeeeeeeeeeed",
@@ -215,23 +237,40 @@ PA.title_sprite(OUT .. "banner_title_top", "HAVING A", FIRE)
 PA.title_sprite(OUT .. "banner_title", "BLAST", FIRE)
 PA.label_sprite(OUT .. "banner_tagline", "ONE BOOM. BOUNCY BLOCKS.", function(i) return i > 9 and "#FFB02E" or "#FFFFFF" end)
 
--- backgrounds: flat dusk blue plus a ground-shadow ellipse under the cast and its landing spots.
--- Placed for make_icon.py's CROP (64px grid, x8 = 512) and make_banner.py's ART_OFFSET; move them if either changes.
+-- the floor key: every floor surface in the scene wears it, and the compositors turn it transparent, so the ground
+-- is the background itself until the blast breaks it
+local krow = string.rep("k", 16)
+PA.sprite_from_grid(OUT .. "key", { krow, krow, krow, krow, krow, krow, krow, krow, krow, krow, krow, krow, krow, krow, krow, krow },
+  { k = "#FF00FF" })
+
+-- shadow disc: a second key (#00FFFF) the compositors paint in the floor's shadow blue, outside the outline
+local disc = {}
+for y = 0, 15 do
+  local row = ""
+  for x = 0, 15 do
+    local dx, dy = x + 0.5 - 8, y + 0.5 - 8
+    row = row .. ((dx * dx + dy * dy <= 64) and "s" or ".")
+  end
+  disc[#disc + 1] = row
+end
+PA.sprite_from_grid(OUT .. "shadow", disc, { s = "#00FFFF" })
+
+-- backgrounds: flat dusk blue (the scene's floor), the banner with a few twinkles
 local SKY, SHADOW = "#35508A", "#2A4072"
 local function shadow_bg(path, w, h, cx, cy, a, b, extra)
   local px = {}
   for y = 0, h - 1 do
     for x = 0, w - 1 do
-      local u, v = (x + 0.5 - cx) / a, (y + 0.5 - cy) / b
+      local u, v = a and (x + 0.5 - cx) / a or 2, b and (y + 0.5 - cy) / b or 2
       px[PA.key(x, y)] = (u * u + v * v <= 1) and SHADOW or SKY
     end
   end
   for k, c in pairs(extra or {}) do px[k] = c end
   PA.save_pixels(path, w, h, px)
 end
-shadow_bg(OUT .. "bg_flat", 64, 64, 32, 48, 28, 8)
+shadow_bg(OUT .. "bg_flat", 64, 64)
 
--- banner (192x64, x8): the same shadow under the art, plus a few twinkles away from the lettering and the art
+-- banner (192x64, x8): flat, plus a few twinkles away from the lettering and the art
 local twinkles = {}
 for _, t in ipairs({ { 6, 5, 1 }, { 60, 7, 0 }, { 104, 4, 1 }, { 118, 22, 0 }, { 185, 12, 1 }, { 186, 44, 0 }, { 110, 57, 1 }, { 12, 58, 0 }, { 58, 55, 0 } }) do
   local x, y, big = t[1], t[2], t[3] == 1
@@ -240,4 +279,4 @@ for _, t in ipairs({ { 6, 5, 1 }, { 60, 7, 0 }, { 104, 4, 1 }, { 118, 22, 0 }, {
     for _, d in ipairs({ { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) do twinkles[PA.key(x + d[1], y + d[2])] = "#4E69A6" end
   end
 end
-shadow_bg(OUT .. "banner_bg", 192, 64, 145.6, 50.7, 31.5, 9, twinkles)
+shadow_bg(OUT .. "banner_bg", 192, 64, nil, nil, nil, nil, twinkles)
