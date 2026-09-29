@@ -50,6 +50,17 @@ Put the jar for your loader in your `mods` folder: Fabric or Quilt, NeoForge or 
 - The thing that exploded is used up: repair brings back the blocks, never the TNT, crystal, bed or anchor.
 - Pending repairs survive restarts and unloaded chunks.
 
+![More from Profet](https://raw.githubusercontent.com/ProfetGit/having-a-blast/main/docs/desc/title-more-from-profet.png)
+
+<!-- promo:start -->
+<p align="center">
+<a href="https://www.curseforge.com/minecraft/mc-mods/tidy-pockets"><img src="https://raw.githubusercontent.com/ProfetGit/assets/main/promo/tidy-pockets.gif" alt="Tidy Pockets: One click. All sorted. Client side." width="49%"></a>
+<a href="https://www.curseforge.com/minecraft/mc-mods/far-out-zoom"><img src="https://raw.githubusercontent.com/ProfetGit/assets/main/promo/far-out-zoom.gif" alt="Far Out Zoom: The horizon, up close. Client side." width="49%"></a>
+<a href="https://www.curseforge.com/minecraft/mc-mods/travelers-lantern"><img src="https://raw.githubusercontent.com/ProfetGit/assets/main/promo/travelers-lantern.gif" alt="Traveler's Lantern: Your light. Hands free. Client or server." width="49%"></a>
+<a href="https://github.com/ProfetGit/overreacting-mobs"><img src="https://raw.githubusercontent.com/ProfetGit/assets/main/promo/overreacting-mobs.gif" alt="Overreacting Mobs: One hit. Big drama. Client side." width="49%"></a>
+</p>
+<!-- promo:end -->
+
 ![Support](https://raw.githubusercontent.com/ProfetGit/having-a-blast/main/docs/desc/title-support.png)
 
 Having a Blast is free. If it gave you a good laugh, a coffee helps fund the next update.
