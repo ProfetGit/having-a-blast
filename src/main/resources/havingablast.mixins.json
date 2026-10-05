@@ -26,6 +26,7 @@
     "client.ClientPacketListenerMixin",
     "client.CreeperRendererMixin",
     "client.EntityRenderDispatcherMixin",
+    "client.ExplosionParticlesMixin",
     "client.LevelRendererMixin",
     "client.MinecraftMixin",
     "client.PrimedTntMixin",

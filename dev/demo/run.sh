@@ -7,7 +7,7 @@
 # sound engine really runs.
 # Usage: run.sh <mc-version> <out-dir> [scenes, comma separated]
 # Env: LOADER=fabric|neoforge|forge|vanilla (default fabric; vanilla: the plain client, no mod, for interop; Forge and NeoForge come from the installs Tidy Pockets' self-test
-#      made, TidyPockets/dev/selftest/install_loaders.sh), MODS="a.jar:b.jar" adds mods, PACKS="x.zip:y.zip" adds
+#      made, mods/TidyPockets/dev/selftest/install_loaders.sh), MODS="a.jar:b.jar" adds mods, PACKS="x.zip:y.zip" adds
 #      resource packs and enables them, FRAMES=0 (checks only, no screenshots), CAM=side|hero|fp|near (camera),
 #      FPS=<cap> (default 120; 0 = uncapped), WIDTH/HEIGHT (default 960x540), VANILLA=1 (the mod's visuals off, for
 #      vanilla-vs-mod captures), FX=<name> (-Dhavingablast.fx, a look variant under review), WORK_TAG=x (own game
@@ -55,7 +55,7 @@ MAXFPS=${FPS:-120}
 mkdir -p "$OUT"
 OUT=$(cd "$OUT" && pwd)
 set +e
-python3 "$ROOT/../ModTest/client.py" "$VER" "$LOADER" "$OUT" --game "$GAME" "${ARGS[@]}" \
+python3 "$ROOT/../../tools/ModTest/client.py" "$VER" "$LOADER" "$OUT" --game "$GAME" "${ARGS[@]}" \
     --user BlastCam --width "${WIDTH:-960}" --height "${HEIGHT:-540}" --timeout "${TIMEOUT:-600}" \
     --opt "fps=$MAXFPS" --opt "volume=${MASTER_VOLUME:-0.0001}" --opt render_distance=6 \
     --log-errors 'ERROR\]: havingablast\.mixins\.json|Having a Blast: .*(failed|cannot)' \

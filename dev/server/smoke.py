@@ -19,11 +19,11 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-sys.path.insert(0, str(ROOT.parent / "ModJar"))
+sys.path.insert(0, str(ROOT.parents[1] / "tools/ModJar"))
 import importlib.util  # noqa: E402
 
 # ModJar/smoke.py (launchers, noise filter) under its own name, so this file can be imported as "smoke" too
-_spec = importlib.util.spec_from_file_location("modjar_smoke", ROOT.parent / "ModJar" / "smoke.py")
+_spec = importlib.util.spec_from_file_location("modjar_smoke", ROOT.parents[1] / "tools/ModJar" / "smoke.py")
 ms = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(ms)
 

@@ -2,7 +2,8 @@
 """Compose the mod icon from Blockbench renders in dev/icon/frames/ (transparent 1600px PNGs, one per frame).
 
 Outputs go to dev/icon/out/ (./gradlew dist wipes dist/): icon-animated.gif (Modrinth, <= 256 KiB), icon-512.png,
-icon-static.png (512 px still for places without GIFs: the fireball over the dirt hole, STATIC_FRAME / STATIC_BOX),
+icon-static-<name>.png (512 px stills for places without GIFs, STATICS; the sources other than animation frames
+come from HB.stills() in Blockbench -> dev/icon/out/static_src/),
 plus src/main/resources/assets/havingablast/icon.png (the mod icon in the jars) and dev/icon/contact.png.
 Scene + animation: dev/icon/build_scene.js -> dev/icon/having_a_blast_icon.bbmodel (sprites in dev/icon/sprites).
 Background: dev/icon/sprites/bg_flat.png (64px flat colour). The scene's floor is rendered in the key colour #FF00FF,
@@ -35,8 +36,13 @@ PALETTE = 255
 CROP = (372, 420, 1202, 1250)
 OUTLINE = 19
 MOD_ICON_BOX = (158, 170, 368, 380)
-STATIC_FRAME = 26                    # the fireball over the fresh dirt hole
-STATIC_BOX = (68, 72, 460, 464)      # its tighter square crop, in 512px icon space, cut again from the 1600px render   # the mod icon is the TNT, cut tighter out of the 512px still
+# static variants: name -> (source: animation frame index or static_src name, square crop box in 1600px render space)
+STATICS = {
+    "fireball": (26, (482, 537, 1117, 1172)),         # the fireball over the fresh dirt hole
+    "tnt": ("tnt", (605, 690, 1035, 1120)),           # the TNT squashed mid-pump, fuse lit
+    "crater": ("crater", (405, 490, 1245, 1330)),     # the dirt hole with the pieces landed around it
+    "air": ("air", (478, 513, 1128, 1163)),           # the pieces flying out of the hole (smoke hidden)
+}   # the mod icon is the TNT, cut tighter out of the 512px still
 
 # candidate backgrounds for --options: (name, flat, shadow)
 OPTIONS = [("dusk blue", "#35508A", "#2A4072"), ("night navy", "#23305E", "#1A2449"),
@@ -142,10 +148,14 @@ def main() -> None:
     still = frames[STILL_FRAME].convert("RGB")
     still.save(OUT / "icon-512.png", optimize=True)
     still.crop(MOD_ICON_BOX).resize((128, 128), Image.LANCZOS).save(MOD_ICON, optimize=True)
-    f = (CROP[2] - CROP[0]) / S
-    box = tuple(round(CROP[i % 2] + v * f) for i, v in enumerate(STATIC_BOX))
-    raw = Image.open(sorted((ICON / "frames").glob("frame_*.png"))[STATIC_FRAME])
-    compose(clean(raw.crop(box)).resize((S, S), Image.NEAREST), bg).convert("RGB").save(OUT / "icon-static.png", optimize=True)
+    frame_files = sorted((ICON / "frames").glob("frame_*.png"))
+    for name, (src, box) in STATICS.items():
+        path = frame_files[src] if isinstance(src, int) else ICON / "out" / "static_src" / f"{src}.png"
+        if not path.exists():
+            print(f"static '{name}': no {path.name} (run HB.stills() in Blockbench)")
+            continue
+        art = clean(Image.open(path).crop(box)).resize((S, S), Image.NEAREST)
+        compose(art, bg).convert("RGB").save(OUT / f"icon-static-{name}.png", optimize=True)
     data = gif_bytes(frames[START_FRAME:] + frames[:START_FRAME])
     out = OUT / "icon-animated.gif"
     out.write_bytes(data)

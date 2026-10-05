@@ -281,6 +281,8 @@ final class Scenes {
         String in = "execute in minecraft:the_nether run ";
         cmd(mc, in + "fill -14 60 4 14 69 30 minecraft:netherrack", in + "fill -14 70 4 14 90 30 minecraft:air",
             in + "kill @e[type=armor_stand,name=ncam]", in + "summon armor_stand -9.5 74 11 {Invisible:1b,Marker:1b,NoGravity:1b,CustomName:\"ncam\",Rotation:[-60f,14f]}");
+        // the player may have fallen while the chunks loaded (1.21.1): back onto the platform
+        cmd(mc, in + "tp " + mc.player.getGameProfile().name() + (bed ? " 0.5 70 13.8 0 30" : " 0.5 70 -2 0 10"));
         if (bed) cmd(mc, in + "setblock 0 70 16 minecraft:red_bed[facing=south,part=foot]", in + "setblock 0 70 17 minecraft:red_bed[facing=south,part=head]");
     }
 

@@ -1,5 +1,6 @@
 package io.github.profetgit.havingablast.mixin.client;
 
+//? if >=26.2 {
 import java.util.List;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
@@ -23,3 +24,12 @@ public interface BlockModelRenderStateAccessor {
     @Accessor("specialRenderer")
     SpecialModelRenderer<?> havingablast$special();
 }
+//?} else {
+/*import net.minecraft.client.Minecraft;
+import org.spongepowered.asm.mixin.Mixin;
+
+// The model resolver is 26.x only: kept so the mixin list is the same for every version.
+@Mixin(Minecraft.class)
+public interface BlockModelRenderStateAccessor {
+}
+*///?}

@@ -1,5 +1,6 @@
 package io.github.profetgit.havingablast.mixin.common;
 
+//? if >=1.21.2 {
 import io.github.profetgit.havingablast.repair.Decor;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
@@ -10,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** An armor stand a repairing blast would break is kept, equipment and all, and stands again after the repair. */
+// An armor stand a repairing blast would break is kept, equipment and all, and stands again after the repair.
 @Mixin(ArmorStand.class)
 public abstract class ArmorStandMixin {
     @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
@@ -18,3 +19,24 @@ public abstract class ArmorStandMixin {
         if (source.is(DamageTypeTags.IS_EXPLOSION) && Decor.onStandBlast((ArmorStand) (Object) this, level, source)) cir.setReturnValue(false);
     }
 }
+//?} else {
+/*import io.github.profetgit.havingablast.repair.Decor;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+// An armor stand a repairing blast would break is kept, equipment and all, and stands again after the repair.
+@Mixin(ArmorStand.class)
+public abstract class ArmorStandMixin {
+    @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
+    private void havingablast$keep(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+        ArmorStand self = (ArmorStand) (Object) this;
+        if (self.level() instanceof ServerLevel level && source.is(DamageTypeTags.IS_EXPLOSION) && Decor.onStandBlast(self, level, source)) cir.setReturnValue(false);
+    }
+}
+*///?}

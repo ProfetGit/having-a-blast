@@ -18,7 +18,6 @@ import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.ServerExplosion;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -78,9 +77,8 @@ public final class Repair {
     // ---------------------------------------------------------------- recording
 
     /** ServerExplosion.explode, start: the whole blast is recorded (entity pass, block pass and the fire it starts). */
-    public static void beginExplosion(ServerExplosion ex) {
-        ServerLevel level = ex.level();
-        Kind kind = Kind.of(ex.getDirectSourceEntity());
+    public static void beginExplosion(ServerLevel level, Entity direct, net.minecraft.world.phys.Vec3 center) {
+        Kind kind = Kind.of(direct);
         if (kind == null || !kind.enabled()) {
             // a blast that doesn't repair still marks its place in the stack, so the matching end closes nothing
             CURRENT.set(new Recording(level, null, null, CURRENT.get()));
@@ -94,20 +92,20 @@ public final class Repair {
             return;
         }
         long due = level.getGameTime() + Config.get().repairDelaySeconds * 20L;
-        Ledger.Group g = ledger.newGroup(kind, ex.center().x, ex.center().y, ex.center().z, due);
+        Ledger.Group g = ledger.newGroup(kind, center.x, center.y, center.z, due);
         CURRENT.set(new Recording(level, ledger, g, CURRENT.get()));
     }
 
-    public static void endExplosion(ServerExplosion ex) {
+    public static void endExplosion(Level level) {
         Recording r = CURRENT.get();
-        if (r == null || r.level != ex.level()) return;
+        if (r == null || r.level != level) return;
         if (r.ledger == null) CURRENT.set(r.outer);
         else finish(r);
     }
 
     /** ServerExplosion.interactWithBlocks, start and end: only its drops are held back. */
-    public static void blockPass(ServerExplosion ex, boolean on) {
-        Recording r = active(ex.level());
+    public static void blockPass(Level level, boolean on) {
+        Recording r = active(level);
         if (r != null) r.blockPass = on;
     }
 

@@ -6,18 +6,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityProcessor;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.level.gamerules.GameRules;
-import net.minecraft.world.level.storage.TagValueInput;
-import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -93,9 +88,7 @@ public final class Decor {
     static boolean keep(ServerLevel level, Ledger l, Ledger.Group g, Entity e) {
         CompoundTag t;
         try {
-            TagValueOutput out = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, level.registryAccess());
-            e.saveWithoutId(out);
-            t = out.buildResult();
+            t = EntityIo.save(level, e);
             t.putString("id", EntityType.getKey(e.getType()).toString());
         } catch (RuntimeException ex) {
             return false;
@@ -119,8 +112,7 @@ public final class Decor {
         for (CompoundTag t : g.decor) {
             Entity e;
             try {
-                e = EntityType.loadEntityRecursive(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), t), level, EntitySpawnReason.LOAD,
-                    EntityProcessor.NOP);
+                e = EntityIo.load(level, t);
             } catch (RuntimeException ex) {
                 e = null;
             }

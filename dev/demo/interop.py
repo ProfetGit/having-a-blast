@@ -32,7 +32,7 @@ META = Path(os.environ.get("MODRINTH_META", Path.home() / ".local/share/Modrinth
 
 def vanilla_server_cmd(mc: str, work: Path) -> list[str]:
     vdir = sorted(META.glob(f"versions/{mc}-*"))[-1]
-    cp = subprocess.check_output(["python3", str(ROOT.parent / "ClientCapture/classpath.py"), str(vdir / f"{vdir.name}.json"), str(META / "libraries")], text=True).strip()
+    cp = subprocess.check_output(["python3", str(ROOT.parents[1] / "tools/ClientCapture/classpath.py"), str(vdir / f"{vdir.name}.json"), str(META / "libraries")], text=True).strip()
     return [ms.java(), "-Xmx2G", f"-Djava.io.tmpdir={work / 'tmp'}", "-cp", cp + ":" + str(vdir / f"{vdir.name}.jar"), "net.minecraft.server.Main", "--nogui"]
 
 

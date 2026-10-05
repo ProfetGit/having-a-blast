@@ -1,7 +1,7 @@
 -- Having a Blast icon sprites. Run through the aseprite MCP: dofile("<abs>/HavingABlast/dev/icon/draw_sprites.lua")
 -- The fire, smoke, star and ring FX come from the mod's own fx.png (dev/icon/fx_sprites.py), not from here.
 dofile("/home/emppu/Projects/Minecraft Datapacks/.claude/skills/pack-icon-animation/assets/pixel_art.lua")
-local OUT = "/home/emppu/Projects/Minecraft Datapacks/HavingABlast/dev/icon/sprites/"
+local OUT = "/home/emppu/Projects/Minecraft Datapacks/mods/HavingABlast/dev/icon/sprites/"
 
 local leaf = { Z = "#0F3325", p = "#17492D", q = "#236B33", r = "#378F38", s = "#5BB23E", t = "#8ED14E", u = "#C3EA6C" }
 local dirt = { X = "#33190F", a = "#4A2A1C", b = "#6B3F27", c = "#8C5A36", d = "#AD7646", e = "#C99760" }

@@ -1,0 +1,292 @@
+[
+ {
+  "regex": "net\\.minecraft\\.util\\.LightCoordsUtil\\.",
+  "to": "net.minecraft.client.renderer.LightTexture.",
+  "when": "<26.2"
+ },
+ {
+  "regex": "LightCoordsUtil\\.withBlock\\(",
+  "to": "Compat.withBlock(",
+  "when": "<26.2"
+ },
+ {
+  "regex": "Blocks\\.CONCRETE\\.white\\(\\)",
+  "to": "Blocks.WHITE_CONCRETE",
+  "when": "<26.2"
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.renderer\\.state\\.level\\.",
+  "to": "net.minecraft.client.renderer.state.",
+  "when": "<26.2"
+ },
+ {
+  "regex": "net/minecraft/client/renderer/state/level/",
+  "to": "net/minecraft/client/renderer/state/",
+  "when": "<26.2"
+ },
+ {
+  "regex": "\\.levelExtractor\\b",
+  "to": ".levelRenderer",
+  "when": "<26.2"
+ },
+ {
+  "regex": "import net\\.minecraft\\.client\\.renderer\\.rendertype\\.RenderTypes;",
+  "to": "import net.minecraft.client.renderer.RenderType;",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "net\\.minecraft\\.client\\.renderer\\.rendertype\\.RenderType\\b",
+  "to": "net.minecraft.client.renderer.RenderType",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "\\bRenderTypes\\.",
+  "to": "RenderType.",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "new DynamicTexture\\(\\(\\) -> \"havingablast fx\", img\\)",
+  "to": "new DynamicTexture(img)",
+  "when": "<1.21.5"
+ },
+ {
+  "regex": "import net\\.minecraft\\.util\\.LightCoordsUtil;",
+  "to": "import net.minecraft.client.renderer.LightTexture;",
+  "when": "<26.2"
+ },
+ {
+  "from": "LightCoordsUtil",
+  "to": "LightTexture",
+  "when": "<26.2"
+ },
+ {
+  "regex": "import net\\.minecraft\\.world\\.entity\\.EntityTypes;",
+  "to": "",
+  "when": "<26.2"
+ },
+ {
+  "regex": "\\bEntityTypes\\.",
+  "to": "EntityType.",
+  "when": "<26.2"
+ },
+ {
+  "regex": "gamerule advance_time",
+  "to": "gamerule doDaylightCycle",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "gamerule advance_weather",
+  "to": "gamerule doWeatherCycle",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "gamerule spawn_mobs",
+  "to": "gamerule doMobSpawning",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "gamerule send_command_feedback",
+  "to": "gamerule sendCommandFeedback",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "gamerule max_block_modifications",
+  "to": "gamerule commandModificationBlockLimit",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "gamerule mob_griefing",
+  "to": "gamerule mobGriefing",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "gamerule random_tick_speed",
+  "to": "gamerule randomTickSpeed",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "\"gamerule spawn_monsters false\",\\s*",
+  "to": "",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "import net\\.minecraft\\.world\\.level\\.gamerules\\.GameRules;",
+  "to": "import net.minecraft.world.level.GameRules;",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "level\\.getGameRules\\(\\)\\.get\\(GameRules\\.MOB_GRIEFING\\)",
+  "to": "level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "world\\.entity\\.decoration\\.painting\\.Painting",
+  "to": "world.entity.decoration.Painting",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "world\\.entity\\.projectile\\.hurtingprojectile\\.",
+  "to": "world.entity.projectile.",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "world\\.entity\\.vehicle\\.minecart\\.MinecartTNT",
+  "to": "world.entity.vehicle.MinecartTNT",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "import net\\.minecraft\\.client\\.renderer\\.SubmitNodeCollector;",
+  "to": "import net.minecraft.client.renderer.MultiBufferSource;",
+  "when": "<1.21.9"
+ },
+ {
+  "from": "SubmitNodeCollector",
+  "to": "MultiBufferSource",
+  "when": "<1.21.9",
+  "files": "^(Boom|Rim|Rebuild|DebrisRenderer|Compat)\\.java$"
+ },
+ {
+  "regex": "Lnet/minecraft/network/PacketProcessor;",
+  "to": "Lnet/minecraft/util/thread/BlockableEventLoop;",
+  "when": "<1.21.11"
+ },
+ {
+  "regex": "getGameProfile\\(\\)\\.name\\(\\)",
+  "to": "getGameProfile().getName()",
+  "when": "<1.21.9"
+ },
+ {
+  "regex": "\\.tintIndex\\(\\)",
+  "to": ".getTintIndex()",
+  "when": "<1.21.5"
+ },
+ {
+  "regex": "list\\.addHeader\\(Component\\.literal\\(\"[^\"]*\"\\)\\);",
+  "to": "",
+  "when": "<1.21.9"
+ },
+ {
+  "regex": "Commands\\.hasPermission\\(Commands\\.LEVEL_GAMEMASTERS\\)",
+  "to": "source -> source.hasPermission(2)",
+  "when": "<1.21.5"
+ },
+ {
+  "regex": "level\\.getMinY\\(\\)",
+  "to": "level.getMinBuildHeight()",
+  "when": "<1.21.2"
+ },
+ {
+  "regex": "st\\.isSolidRender\\(\\)",
+  "to": "st.isSolidRender(level, mp)",
+  "when": "<1.21.2",
+  "files": "^Rim\\.java$"
+ },
+ {
+  "regex": "level\\.getBlockState\\(above\\)\\.isSolidRender\\(\\)",
+  "to": "level.getBlockState(above).isSolidRender(level, above)",
+  "when": "<1.21.2",
+  "files": "^Rim\\.java$"
+ },
+ {
+  "regex": "level\\.getBlockState\\(MP\\)\\.isSolidRender\\(\\)",
+  "to": "level.getBlockState(MP).isSolidRender(level, MP)",
+  "when": "<1.21.2",
+  "files": "^DebrisRenderer\\.java$"
+ },
+ {
+  "regex": "\\.getDeltaTracker\\(\\)",
+  "to": ".getTimer()",
+  "when": "<1.21.2"
+ },
+ {
+  "regex": "stand\\.isInvulnerableTo\\(level, source\\)",
+  "to": "stand.isInvulnerableTo(source)",
+  "when": "<1.21.2"
+ },
+ {
+  "regex": "h\\.dropItem\\(level, null\\)",
+  "to": "h.dropItem(null)",
+  "when": "<1.21.2"
+ },
+ {
+  "regex": "level\\.updateNeighborsAt\\(pos, level\\.getBlockState\\(pos\\)\\.getBlock\\(\\), null\\)",
+  "to": "level.updateNeighborsAt(pos, level.getBlockState(pos).getBlock())",
+  "when": "<1.21.2"
+ },
+ {
+  "regex": "var blocks = BuiltInRegistries\\.BLOCK;",
+  "to": "var blocks = BuiltInRegistries.BLOCK.asLookup();",
+  "when": "<1.21.2"
+ },
+ {
+  "regex": "readBlockState\\(BuiltInRegistries\\.BLOCK,",
+  "to": "readBlockState(BuiltInRegistries.BLOCK.asLookup(),",
+  "when": "<1.21.2"
+ },
+ {
+  "regex": "countEvent\\(net\\.minecraft\\.world\\.entity\\.Entity source,",
+  "to": "countEvent(net.minecraft.world.entity.player.Player source,",
+  "when": "<1.21.5"
+ },
+ {
+  "regex": "Lnet/minecraft/server/level/ServerLevel;explode\\(",
+  "to": "Lnet/minecraft/world/level/Level;explode(",
+  "when": "<1.21.9",
+  "files": "^(RespawnAnchorBlockMixin|BedBlockMixin)\\.java$"
+ },
+ {
+  "regex": "havingablast\\$anchor\\(ServerLevel level,",
+  "to": "havingablast$anchor(Level level,",
+  "when": "<1.21.9",
+  "files": "^(RespawnAnchorBlockMixin|BedBlockMixin)\\.java$"
+ },
+ {
+  "regex": "Level\\$ExplosionInteraction;\\)V\"",
+  "to": "Level$ExplosionInteraction;)Lnet/minecraft/world/level/Explosion;\"",
+  "when": "<1.21.2",
+  "files": "^(RespawnAnchorBlockMixin|BedBlockMixin)\\.java$"
+ },
+ {
+  "regex": "private void havingablast\\$(anchor|bed)\\(",
+  "to": "private net.minecraft.world.level.Explosion havingablast\\$$1(",
+  "when": "<1.21.2",
+  "files": "^(RespawnAnchorBlockMixin|BedBlockMixin)\\.java$",
+  "groups": "1"
+ },
+ {
+  "regex": "Operation<Void> original",
+  "to": "Operation<net.minecraft.world.level.Explosion> original",
+  "when": "<1.21.2",
+  "files": "^(RespawnAnchorBlockMixin|BedBlockMixin)\\.java$"
+ },
+ {
+  "regex": "original\\.call\\(level, source, damage, calc, at, power, fire, interaction\\);",
+  "to": "return original.call(level, source, damage, calc, at, power, fire, interaction);",
+  "when": "<1.21.2",
+  "files": "^(RespawnAnchorBlockMixin|BedBlockMixin)\\.java$"
+ },
+ {
+  "regex": "CallbackInfoReturnable<Integer> cir",
+  "to": "CallbackInfo ci",
+  "when": "<1.21.9",
+  "files": "^ServerExplosionMixin\\.java$"
+ },
+ {
+  "regex": "messages:\\[\\\\\"\\\\\",\\\\\"Home\\\\\",\\\\\"sweet\\ home\\\\\",\\\\\"\\\\\"\\]",
+  "to": "messages:['\\\"\\\"','\\\"Home\\\"','\\\"sweet home\\\"','\\\"\\\"']",
+  "when": "<1.21.5",
+  "files": "^House\\.java$"
+ },
+ {
+  "regex": "\\{fuse:5\\}",
+  "to": "{TNTFuse:5}",
+  "when": "<1.21.2",
+  "files": "^RepairTest\\.java$"
+ },
+ {
+  "regex": "equipment:\\{head:\\{id:\\\\\"minecraft:iron_helmet\\\\\",count:1\\},chest:\\{id:\\\\\"minecraft:golden_chestplate\\\\\",count:1\\},mainhand:\\{id:\\\\\"minecraft:stick\\\\\",count:1\\}\\}",
+  "to": "ArmorItems:[{},{},{id:\\\"minecraft:golden_chestplate\\\",count:1},{id:\\\"minecraft:iron_helmet\\\",count:1}],HandItems:[{id:\\\"minecraft:stick\\\",count:1},{}]",
+  "when": "<1.21.5",
+  "files": "^RepairTest\\.java$"
+ }
+]

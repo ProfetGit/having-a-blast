@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.8 (unreleased)
+
+- Flying debris take their light from the game's own light lookup, so light added by other mods (Traveler's Lantern) reaches them like it does blocks and entities.
+
+## 0.2.7 (unreleased)
+
+- Fixed the mod's textures and text missing on Minecraft Java 1.21.1, 1.21.4 and 1.21.8 (its resource pack metadata was in the 1.21.9 format). Nothing changes on 26.2 and 26.3.
+
+## 0.2.6 (unreleased)
+
+- Now also runs on Minecraft Java 1.21.1, 1.21.4, 1.21.8 and 1.21.11 (Fabric). Nothing changes on 26.2 and 26.3.
+
 ## 0.2.5 (unreleased)
 
 - Blocks that pop into their drops no longer leave a smoke puff; they just crumble with their plop. The dust where blocks land and the puff when a repaired block drops in are small again.

@@ -1,6 +1,5 @@
 package io.github.profetgit.havingablast.client;
 
-import io.github.profetgit.havingablast.mixin.client.BlockModelRenderStateAccessor;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.IdentityHashMap;
@@ -8,12 +7,19 @@ import java.util.List;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+//? if >=26.2 {
+import io.github.profetgit.havingablast.mixin.client.BlockModelRenderStateAccessor;
+import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.BlockModelResolver;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.block.model.BlockDisplayContext;
+//?}
+//? if <26.2 {
+/*import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+*///?}
 import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -46,7 +52,9 @@ public final class Blasts {
     static final List<Blast> blasts = new ArrayList<>();
     static final List<Debris> live = new ArrayList<>();
     static final Map<BlockState, Model> MODELS = new IdentityHashMap<>();
+    //? if >=26.2 {
     static BlockModelResolver resolver;
+    //?}
     static final RandomSource RNG = RandomSource.create();
     /** Dev counters for the demo checks. */
     public static int totalCaptured, totalPopped, totalBlasts, totalOverflow;
@@ -54,7 +62,8 @@ public final class Blasts {
     private Blasts() {
     }
 
-    /** A block's resolved model, cached per state: the parts and render type for the allocation-free fast path. */
+    //? if >=26.2 {
+    // A block's resolved model, cached per state: the parts and render type for the allocation-free fast path.
     static final class Model {
         final BlockModelRenderState rs = new BlockModelRenderState();
         List<BlockStateModelPart> parts;
@@ -63,6 +72,17 @@ public final class Blasts {
         boolean fast;
         int emission;
     }
+    //?}
+    //? if <26.2 {
+    /*// A block's model, cached per state: its quads with the tint of where the block was.
+    static final class Model {
+        final List<BakedQuad> quads = new ArrayList<>();
+        RenderType type;
+        final int[] tints = new int[4];
+        int emission;
+    }
+
+*///?}
 
     /** Positions with a break event in the last ticks (packet order: the event comes before the end-of-tick block update). */
     static final it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap BROKE = new it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap();
@@ -87,6 +107,7 @@ public final class Blasts {
         return ticks + partial;
     }
 
+    //? if >=26.2 {
     static Model model(BlockState state, ClientLevel level, BlockPos at) {
         Model m = MODELS.get(state);
         if (m != null) return m;
@@ -117,6 +138,24 @@ public final class Blasts {
         MODELS.put(state, m);
         return m;
     }
+    //?}
+    //? if <26.2 {
+    /*static Model model(BlockState state, ClientLevel level, BlockPos at) {
+        Model m = MODELS.get(state);
+        if (m != null) return m;
+        Minecraft mc = Minecraft.getInstance();
+        m = new Model();
+        Compat.quads(state, m.quads);
+        m.type = ItemBlockRenderTypes.getMovingBlockRenderType(state);
+        for (int i = 0; i < m.tints.length; i++) {
+            m.tints[i] = level != null && at != null ? mc.getBlockColors().getColor(state, level, at, i) | 0xFF000000 : 0xFFFFFFFF;
+        }
+        m.emission = state.getLightEmission();
+        MODELS.put(state, m);
+        return m;
+    }
+
+*///?}
 
     static BlockState flashState() {
         return Blocks.CONCRETE.white().defaultBlockState();
@@ -124,7 +163,9 @@ public final class Blasts {
 
     public static void clearModels() {
         MODELS.clear();
+        //? if >=26.2 {
         resolver = null;
+        //?}
     }
 
     /** True while handleExplosion runs for a blast this mod draws: vanilla's sprite and block spray are skipped. */
@@ -235,7 +276,9 @@ public final class Blasts {
             // load the sprite sheet and the model resolver now, not in the frame of the first blast (a 27 ms hitch)
             warm = true;
             Sprites.type();
+            //? if >=26.2 {
             if (resolver == null) resolver = new BlockModelResolver(mc.getModelManager());
+            //?}
             model(Blocks.DIRT.defaultBlockState(), mc.level, null);
         }
         ticks++;

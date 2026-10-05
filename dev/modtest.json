@@ -11,39 +11,170 @@
     "havingablast.demo.mp": "90",
     "modtest.tickrate": "{tickrate}"
   },
-  "defaults": {"cam": "side", "vanilla": "", "fx": "", "tickrate": ""},
+  "defaults": {
+    "cam": "side",
+    "vanilla": "",
+    "fx": "",
+    "tickrate": ""
+  },
   "world": "dev/demo/.work/world-{mc}",
   "world_fallback": "dev/demo/.work/world",
-  "options": {"fps": 120, "volume": 0.0001, "render_distance": 6},
+  "options": {
+    "fps": 120,
+    "volume": 0.0001,
+    "render_distance": 6
+  },
   "log_errors": "Having a Blast: .*(failed|cannot)",
-  "scenes": ["tnt1", "tnt10", "tnt100", "tnt1000", "creeper", "creeper_charged", "house_tnt", "repair", "repair_tnt", "sources",
-             "wither", "underwater", "cave", "lava", "garden", "griefing_off", "far", "mobs", "window_noise",
-             "anchor", "bed_nether", "nether_tnt", "end_tnt"],
-  "smoke": ["tnt1", "creeper", "repair"],
+  "scenes": [
+    "tnt1",
+    "tnt10",
+    "tnt100",
+    "tnt1000",
+    "creeper",
+    "creeper_charged",
+    "house_tnt",
+    "repair",
+    "repair_tnt",
+    "sources",
+    "wither",
+    "underwater",
+    "cave",
+    "lava",
+    "garden",
+    "griefing_off",
+    "far",
+    "mobs",
+    "window_noise",
+    "anchor",
+    "bed_nether",
+    "nether_tnt",
+    "end_tnt"
+  ],
+  "smoke": [
+    "tnt1",
+    "creeper",
+    "repair"
+  ],
   "addons": {
-    "profile": {"mods": ["sodium-*.jar", "iris-*.jar", "entityculling-*.jar"]}
+    "profile": {
+      "mods": [
+        "sodium-*.jar",
+        "iris-*.jar",
+        "entityculling-*.jar"
+      ]
+    }
   },
   "commands": {
-    "repair-26.3-fabric": ["python3", "dev/server/repairtest.py", "--mc", "26.3", "--loader", "fabric", "-j", "1"],
-    "repair-all": ["python3", "dev/server/repairtest.py", "-j", "4"],
-    "server-smoke": ["python3", "dev/server/smoke.py", "-j", "4"]
+    "repair-26.3-fabric": [
+      "python3",
+      "dev/server/repairtest.py",
+      "--mc",
+      "26.3",
+      "--loader",
+      "fabric",
+      "-j",
+      "1"
+    ],
+    "repair-all": [
+      "python3",
+      "dev/server/repairtest.py",
+      "-j",
+      "4"
+    ],
+    "server-smoke": [
+      "python3",
+      "dev/server/smoke.py",
+      "-j",
+      "4"
+    ],
+    "repair-legacy": [
+      "python3",
+      "dev/server/repairtest.py",
+      "--mc",
+      "1.21.11,1.21.8,1.21.4,1.21.1",
+      "--loader",
+      "fabric",
+      "-j",
+      "2"
+    ]
   },
   "tiers": {
     "quick": {
-      "jobs": [{"mc": "26.3", "loader": "fabric", "scenes": "smoke"}]
+      "jobs": [
+        {
+          "mc": "26.3",
+          "loader": "fabric",
+          "scenes": "smoke"
+        }
+      ]
     },
     "full": {
-      "commands": ["repair-26.3-fabric"],
+      "commands": [
+        "repair-26.3-fabric",
+        "repair-legacy"
+      ],
       "jobs": [
-        {"mc": ["26.3", "26.2"], "loader": "fabric", "scenes": "all"},
-        {"mc": ["26.3", "26.2"], "loader": ["neoforge", "forge"], "scenes": "smoke"}
+        {
+          "mc": [
+            "26.3",
+            "26.2",
+            "1.21.11",
+            "1.21.8",
+            "1.21.4",
+            "1.21.1"
+          ],
+          "loader": "fabric",
+          "scenes": "all"
+        },
+        {
+          "mc": [
+            "26.3",
+            "26.2"
+          ],
+          "loader": [
+            "neoforge",
+            "forge"
+          ],
+          "scenes": "smoke"
+        }
       ]
     },
     "release": {
-      "commands": ["repair-all", "server-smoke"],
+      "commands": [
+        "repair-all",
+        "server-smoke"
+      ],
       "jobs": [
-        {"mc": ["26.3", "26.2"], "loader": ["fabric", "neoforge", "forge"], "scenes": "all"},
-        {"mc": "26.3", "loader": "fabric", "scenes": "all", "addons": ["profile"]}
+        {
+          "mc": [
+            "26.3",
+            "26.2"
+          ],
+          "loader": [
+            "fabric",
+            "neoforge",
+            "forge"
+          ],
+          "scenes": "all"
+        },
+        {
+          "mc": [
+            "1.21.11",
+            "1.21.8",
+            "1.21.4",
+            "1.21.1"
+          ],
+          "loader": "fabric",
+          "scenes": "all"
+        },
+        {
+          "mc": "26.3",
+          "loader": "fabric",
+          "scenes": "all",
+          "addons": [
+            "profile"
+          ]
+        }
       ]
     }
   }

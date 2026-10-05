@@ -152,7 +152,7 @@ public final class Director {
         if (!FRAMES) return;
         Path out = dir.resolve(String.format("f%05d.png", n));
         pending.incrementAndGet();
-        Screenshot.takeScreenshot(mc.gameRenderer.mainRenderTarget(), (NativeImage img) -> WRITER.execute(() -> {
+        io.github.profetgit.havingablast.client.Compat.screenshot(mc.gameRenderer.mainRenderTarget(), (NativeImage img) -> WRITER.execute(() -> {
             try (img) {
                 Files.createDirectories(dir);
                 img.writeToFile(out);

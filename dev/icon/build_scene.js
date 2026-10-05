@@ -9,7 +9,7 @@
 // sparks, poofs, crumbs) lives in the `screen` group, tilted to face the orthographic camera: x right, y up, z out.
 var HB = (function () {
   const fs = require('fs');
-  const DIR = '/home/emppu/Projects/Minecraft Datapacks/HavingABlast/dev/icon/';
+  const DIR = '/home/emppu/Projects/Minecraft Datapacks/mods/HavingABlast/dev/icon/';
   const TEX = DIR + 'sprites/';
   const FPS = 25, DT = 1 / FPS, LEN = 3.2;
   const CAM_POS = [0, 75, 96], CAM_TARGET = [0, 16, 0];   // ~31.6 deg down, steep enough to see into the hole
@@ -464,7 +464,24 @@ var HB = (function () {
     return v.toArray().map(n => Math.round(n * 10) / 10);
   }
   function setCam(zoom, pan) { CAM_ZOOM = zoom; CAM_PAN = pan; }
+  // sources for the static icon variants (make_icon.py STATICS): name -> [time, group-name prefixes to hide]
+  const STILLS = { tnt: [0.84, []], crater: [1.92, []], air: [1.32, ['smoke_', 'fire_', 'bchunk_']] };
+  function stills() {
+    const dir = DIR + 'out/static_src/';
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    camera();
+    const shot = (name, [t, hide]) => new Promise(done => {
+      own(); setTime(t);
+      Group.all.forEach(g => { if (hide.some(h => g.name.startsWith(h))) g.mesh.visible = false; });
+      Screencam.advancedScreenshot(Preview.selected, { angle_preset: 'view', resolution: [1600, 1600], anti_aliasing: 'none', shading: false }, url => {
+        fs.writeFileSync(dir + name + '.png', Buffer.from(url.split(',')[1], 'base64'));
+        Group.all.forEach(g => { g.mesh.visible = true; });
+        done();
+      });
+    });
+    return (async () => { for (const [n, v] of Object.entries(STILLS)) await shot(n, v); setTime(0); return 'stills: ' + Object.keys(STILLS).join(', '); })();
+  }
 
-  return { own, lockedBy, FPS, DT, LEN, T, P, PITCH, G, tex, loadTextures, build, animate, camera, setCam, render, setTime,
+  return { own, lockedBy, stills, FPS, DT, LEN, T, P, PITCH, G, tex, loadTextures, build, animate, camera, setCam, render, setTime,
     scaleSweep, probe, layout, worldToScreen, veinToWorld, blockCentre, q };
 })();

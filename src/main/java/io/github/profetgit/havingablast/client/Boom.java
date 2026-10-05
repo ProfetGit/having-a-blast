@@ -241,7 +241,7 @@ final class Boom {
             liteBeyond = Double.MAX_VALUE;
         }
         POOFS.removeIf(p -> Blasts.ticks - p[4] > 9);
-        c.submitCustomGeometry(ps, type, (pose, vc) -> {
+        Compat.geometry(c, ps, type, (pose, vc) -> {
             long t0 = System.nanoTime();
             Writer w = new Writer(vc, pose.pose(), pose.transformNormal(0, 1, 0, new Vector3f()), rot, cx, cy, cz);
             for (float[] p : POOFS) {

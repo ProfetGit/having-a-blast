@@ -35,7 +35,14 @@ final class Blast {
     Blast(Vec3 center, float radius, int tick, long seed) {
         this.center = center;
         this.radius = radius;
-        this.reach = radius * 1.3 / 0.225 * 0.3 + 1.0;
+        // before 1.21.9 the packet has no radius (Blasts.onExplosionPacket guesses one for the look), so a big blast's
+        // blocks are looked for as far as the biggest common one (a wither's spawn, 7) could have thrown them
+        //? if >=1.21.9 {
+        float capture = radius;
+        //?} else {
+        /*float capture = Math.max(radius, 7f);
+        *///?}
+        this.reach = capture * 1.3 / 0.225 * 0.3 + 1.0;
         this.openedTick = tick;
         this.seed = seed;
     }

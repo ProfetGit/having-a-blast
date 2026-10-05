@@ -16,7 +16,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
+//? if >=1.21.5 {
 import net.minecraft.world.level.saveddata.SavedDataType;
+//?}
 
 /**
  * Pending repairs of one dimension, saved with the world (data/havingablast/repairs_<dimension>.dat), so a restart,
@@ -89,9 +91,12 @@ public final class Ledger extends SavedData {
     public final Int2ObjectOpenHashMap<Group> groups = new Int2ObjectOpenHashMap<>();
     int nextGroup = 1;
 
+    //? if >=1.21.5 {
     static final java.util.Map<String, SavedDataType<Ledger>> TYPES = new java.util.concurrent.ConcurrentHashMap<>();
+    //?}
 
-    /** One type per dimension, cached: the storage keys by the type record, and a fresh Ledger::new never equals the last. */
+    //? if >=26.2 {
+    // One type per dimension, cached: the storage keys by the type record, and a fresh Ledger::new never equals the last.
     public static SavedDataType<Ledger> type(ServerLevel level) {
         String dim = level.dimension().identifier().toString().replace(':', '_').replace('/', '_');
         return TYPES.computeIfAbsent(dim, d -> new SavedDataType<>(Identifier.fromNamespaceAndPath("havingablast", "repairs_" + d), Ledger::new, CODEC,
@@ -101,6 +106,33 @@ public final class Ledger extends SavedData {
     public static Ledger of(ServerLevel level) {
         return level.getDataStorage().computeIfAbsent(type(level));
     }
+    //?}
+    //? if >=1.21.5 <26.2 {
+    /*// One type per dimension, cached (its id is a string before 26.2).
+    public static SavedDataType<Ledger> type(ServerLevel level) {
+        String dim = level.dimension().identifier().toString().replace(':', '_').replace('/', '_');
+        return TYPES.computeIfAbsent(dim, d -> new SavedDataType<>("havingablast_repairs_" + d, Ledger::new, CODEC,
+            DataFixTypes.SAVED_DATA_COMMAND_STORAGE));
+    }
+
+    public static Ledger of(ServerLevel level) {
+        return level.getDataStorage().computeIfAbsent(type(level));
+    }
+    *///?}
+    //? if <1.21.5 {
+    /*// before 1.21.5 the data is NBT: a factory and a file name per dimension
+    @Override
+    public CompoundTag save(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+        CompoundTag saved = save();
+        for (String k : saved.getAllKeys()) tag.put(k, saved.get(k));
+        return tag;
+    }
+
+    public static Ledger of(ServerLevel level) {
+        String dim = level.dimension().identifier().toString().replace(':', '_').replace('/', '_');
+        return level.getDataStorage().computeIfAbsent(new SavedData.Factory<>(Ledger::new, (tag, registries) -> load(tag), DataFixTypes.SAVED_DATA_COMMAND_STORAGE), "havingablast_repairs_" + dim);
+    }
+    *///?}
 
     Group newGroup(Kind kind, double cx, double cy, double cz, long due) {
         Group g = new Group(nextGroup++);
@@ -137,7 +169,9 @@ public final class Ledger extends SavedData {
 
     // ---- saving
 
+    //? if >=1.21.5 {
     public static final Codec<Ledger> CODEC = CompoundTag.CODEC.xmap(Ledger::load, Ledger::save);
+    //?}
 
     CompoundTag save() {
         CompoundTag root = new CompoundTag();
@@ -181,20 +215,20 @@ public final class Ledger extends SavedData {
     static Ledger load(CompoundTag root) {
         Ledger l = new Ledger();
         var blocks = BuiltInRegistries.BLOCK;
-        l.nextGroup = root.getIntOr("nextGroup", 1);
-        for (Tag tag : root.getListOrEmpty("groups")) {
+        l.nextGroup = Nbt.intOr(root, "nextGroup", 1);
+        for (Tag tag : Nbt.list(root, "groups")) {
             CompoundTag t = (CompoundTag) tag;
-            Group g = new Group(t.getIntOr("id", 0));
-            g.due = t.getLongOr("due", 0);
+            Group g = new Group(Nbt.intOr(t, "id", 0));
+            g.due = Nbt.longOr(t, "due", 0);
             try {
-                g.kind = Kind.valueOf(t.getStringOr("kind", "TNT"));
+                g.kind = Kind.valueOf(Nbt.stringOr(t, "kind", "TNT"));
             } catch (IllegalArgumentException e) {
                 g.kind = Kind.TNT;
             }
-            g.cx = t.getDoubleOr("cx", 0);
-            g.cy = t.getDoubleOr("cy", 0);
-            g.cz = t.getDoubleOr("cz", 0);
-            int[] box = t.getIntArray("box").orElse(new int[6]);
+            g.cx = Nbt.doubleOr(t, "cx", 0);
+            g.cy = Nbt.doubleOr(t, "cy", 0);
+            g.cz = Nbt.doubleOr(t, "cz", 0);
+            int[] box = Nbt.intArray(t, "box", new int[6]);
             if (box.length == 6) {
                 g.minX = box[0];
                 g.minY = box[1];
@@ -203,18 +237,19 @@ public final class Ledger extends SavedData {
                 g.maxY = box[4];
                 g.maxZ = box[5];
             }
-            for (long p : t.getLongArray("restored").orElse(new long[0])) g.restored.add(p);
-            g.started = t.getBooleanOr("started", false);
-            for (Tag d : t.getListOrEmpty("decor")) if (d instanceof CompoundTag c) g.decor.add(c);
-            g.decorAt = t.getLongOr("decorAt", -1);
+            for (long p : Nbt.longArray(t, "restored")) g.restored.add(p);
+            g.started = Nbt.boolOr(t, "started", false);
+            for (Tag d : Nbt.list(t, "decor")) if (d instanceof CompoundTag c) g.decor.add(c);
+            g.decorAt = Nbt.longOr(t, "decorAt", -1);
             l.groups.put(g.id, g);
         }
-        for (Tag tag : root.getListOrEmpty("entries")) {
+        for (Tag tag : Nbt.list(root, "entries")) {
             CompoundTag t = (CompoundTag) tag;
-            Entry e = new Entry(t.getLongOr("pos", 0), NbtUtils.readBlockState(blocks, t.getCompoundOrEmpty("before")),
-                t.getCompound("be").orElse(null), t.getIntOr("group", 0));
-            e.after = t.getCompound("after").map(a -> NbtUtils.readBlockState(blocks, a)).orElse(null);
-            e.touched = t.getBooleanOr("touched", false);
+            Entry e = new Entry(Nbt.longOr(t, "pos", 0), NbtUtils.readBlockState(blocks, Nbt.compoundOrEmpty(t, "before")),
+                Nbt.compound(t, "be"), Nbt.intOr(t, "group", 0));
+            CompoundTag after = Nbt.compound(t, "after");
+            e.after = after == null ? null : NbtUtils.readBlockState(blocks, after);
+            e.touched = Nbt.boolOr(t, "touched", false);
             if (l.groups.containsKey(e.group)) l.entries.put(e.pos, e);
         }
         return l;

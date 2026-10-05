@@ -16,7 +16,7 @@
   "mixins": ["havingablast.mixins.json"],
   "depends": {
     "fabricloader": ">=${fabric_loader}",
-    "minecraft": "~${mc}",
-    "java": ">=25"
+    "minecraft": "${mc_range}",
+    "java": ">=${java}"
   }
 }

@@ -34,6 +34,15 @@ import net.minecraft.world.phys.AABB;
  */
 public final class RepairTest {
     public static final boolean ACTIVE = System.getProperty("havingablast.test") != null;
+    // where a hanging entity is fixed: block_pos since 1.21.5, TileX/Y/Z before
+    static String tile(int x, int y, int z) {
+        //? if >=1.21.5 {
+        return "block_pos:[I;" + x + "," + y + "," + z + "]";
+        //?} else {
+        /*return "TileX:" + x + ",TileY:" + y + ",TileZ:" + z;
+        *///?}
+    }
+
     static final String[] ALL = {"defaults_off", "creeper", "creeper_charged", "tnt", "minecart", "only_own_toggle", "other_sources", "player_block", "mixed_chain", "big_crater", "decor",
         "crystal", "fireball", "bed", "anchor", "wither", "restart_a"};
     static final int Y = -60, DELAY = 2;
@@ -179,10 +188,10 @@ public final class RepairTest {
                         usedUp.add((x + 5) + "," + Y + "," + (z + 2) + " ");
                     }
                     if (name.equals("decor")) {
-                        c(summon("item_frame", x + 1, Y, z - 1, "{block_pos:[I;" + (x + 1) + "," + Y + "," + (z - 1) + "],Pos:[" + ((x + 1) + 0.5) + "d," + (Y + 0.5) + "d," + ((z - 1) + 0.5) + "d],Facing:2b,ItemRotation:3b,Item:{id:\"minecraft:diamond_sword\",count:1,components:{\"minecraft:custom_name\":\"Blade\"}}}"),
-                            summon("glow_item_frame", x + 5, Y, z - 1, "{block_pos:[I;" + (x + 5) + "," + Y + "," + (z - 1) + "],Pos:[" + ((x + 5) + 0.5) + "d," + (Y + 0.5) + "d," + ((z - 1) + 0.5) + "d],Facing:2b,Item:{id:\"minecraft:clock\",count:1}}"),
-                            summon("item_frame", x + 3, Y + 1, z + 4, "{block_pos:[I;" + (x + 3) + "," + (Y + 1) + "," + (z + 4) + "],Pos:[" + ((x + 3) + 0.5) + "d," + ((Y + 1) + 0.5) + "d," + ((z + 4) + 0.5) + "d],Facing:2b,Item:{id:\"minecraft:apple\",count:1}}"),
-                            summon("painting", x + 4, Y + 2, z - 1, "{block_pos:[I;" + (x + 4) + "," + (Y + 2) + "," + (z - 1) + "],Pos:[" + ((x + 4) + 0.5) + "d," + ((Y + 2) + 0.5) + "d," + ((z - 1) + 0.5) + "d],facing:2b,variant:\"minecraft:kebab\"}"),
+                        c(summon("item_frame", x + 1, Y, z - 1, "{" + tile((x + 1), Y, (z - 1)) + ",Pos:[" + ((x + 1) + 0.5) + "d," + (Y + 0.5) + "d," + ((z - 1) + 0.5) + "d],Facing:2b,ItemRotation:3b,Item:{id:\"minecraft:diamond_sword\",count:1,components:{\"minecraft:custom_name\":\"Blade\"}}}"),
+                            summon("glow_item_frame", x + 5, Y, z - 1, "{" + tile((x + 5), Y, (z - 1)) + ",Pos:[" + ((x + 5) + 0.5) + "d," + (Y + 0.5) + "d," + ((z - 1) + 0.5) + "d],Facing:2b,Item:{id:\"minecraft:clock\",count:1}}"),
+                            summon("item_frame", x + 3, Y + 1, z + 4, "{" + tile((x + 3), (Y + 1), (z + 4)) + ",Pos:[" + ((x + 3) + 0.5) + "d," + ((Y + 1) + 0.5) + "d," + ((z + 4) + 0.5) + "d],Facing:2b,Item:{id:\"minecraft:apple\",count:1}}"),
+                            summon("painting", x + 4, Y + 2, z - 1, "{" + tile((x + 4), (Y + 2), (z - 1)) + ",Pos:[" + ((x + 4) + 0.5) + "d," + ((Y + 2) + 0.5) + "d," + ((z - 1) + 0.5) + "d],facing:2b,variant:\"minecraft:kebab\"}"),
                             summon("armor_stand", x + 0.5, Y, z - 2.5, "{ShowArms:1b,equipment:{head:{id:\"minecraft:iron_helmet\",count:1},chest:{id:\"minecraft:golden_chestplate\",count:1},mainhand:{id:\"minecraft:stick\",count:1}}}"));
                     }
                     c("kill @e[type=item]");
@@ -259,7 +268,7 @@ public final class RepairTest {
                             List<String> dd = new ArrayList<>();
                             for (Map.Entry<java.util.UUID, CompoundTag> e : decorBefore.entrySet()) {
                                 CompoundTag n = now.get(e.getKey());
-                                if (n == null) dd.add("missing " + e.getValue().getStringOr("id", "?"));
+                                if (n == null) dd.add("missing " + io.github.profetgit.havingablast.repair.Nbt.stringOr(e.getValue(), "id", "?"));
                                 else if (!n.equals(e.getValue())) dd.add("changed " + e.getValue() + " -> " + n);
                             }
                             if (now.size() != decorBefore.size()) dd.add(decorBefore.size() + " decorations before, " + now.size() + " after");
@@ -375,19 +384,18 @@ public final class RepairTest {
             for (net.minecraft.world.entity.Entity e : level.getEntities((net.minecraft.world.entity.Entity) null, box().inflate(2),
                 e -> e instanceof net.minecraft.world.entity.decoration.HangingEntity || e instanceof net.minecraft.world.entity.decoration.ArmorStand)) {
                 if (e instanceof net.minecraft.world.entity.decoration.LeashFenceKnotEntity) continue;
-                net.minecraft.world.level.storage.TagValueOutput out = net.minecraft.world.level.storage.TagValueOutput.createWithContext(net.minecraft.util.ProblemReporter.DISCARDING, level.registryAccess());
-                e.saveWithoutId(out);
-                CompoundTag t = out.buildResult();
+                CompoundTag t = io.github.profetgit.havingablast.repair.EntityIo.save(level, e);
                 for (String k : new String[] {"Motion", "fall_distance", "FallDistance", "Air", "OnGround", "Fire", "PortalCooldown", "HurtTime", "HurtByTimestamp", "DeathTime"}) t.remove(k);
                 t.putString("id", net.minecraft.world.entity.EntityType.getKey(e.getType()).toString());
                 // the attribute list comes out in hash order: same data, any order
-                t.getList("attributes").ifPresent(l -> {
+                net.minecraft.nbt.ListTag l = io.github.profetgit.havingablast.repair.Nbt.list(t, "attributes");
+                if (!l.isEmpty()) {
                     List<Tag> sorted = new ArrayList<>(l);
-                    sorted.sort(java.util.Comparator.comparing(x -> ((CompoundTag) x).getStringOr("id", "")));
+                    sorted.sort(java.util.Comparator.comparing(x -> io.github.profetgit.havingablast.repair.Nbt.stringOr((CompoundTag) x, "id", "")));
                     net.minecraft.nbt.ListTag nl = new net.minecraft.nbt.ListTag();
                     nl.addAll(sorted);
                     t.put("attributes", nl);
-                });
+                }
                 m.put(e.getUUID(), t);
             }
             return m;
@@ -498,12 +506,12 @@ public final class RepairTest {
                 CompoundTag root = NbtIo.read(file(level));
                 if (root == null) return null;
                 Map<Long, Object[]> m = new HashMap<>();
-                for (Tag tag : root.getListOrEmpty("snap")) {
+                for (Tag tag : io.github.profetgit.havingablast.repair.Nbt.list(root, "snap")) {
                     CompoundTag t = (CompoundTag) tag;
-                    m.put(t.getLongOr("p", 0), new Object[] {NbtUtils.readBlockState(BuiltInRegistries.BLOCK, t.getCompoundOrEmpty("s")), t.getCompound("be").orElse(null)});
+                    m.put(io.github.profetgit.havingablast.repair.Nbt.longOr(t, "p", 0), new Object[] {NbtUtils.readBlockState(BuiltInRegistries.BLOCK, io.github.profetgit.havingablast.repair.Nbt.compoundOrEmpty(t, "s")), io.github.profetgit.havingablast.repair.Nbt.compound(t, "be")});
                 }
-                savedItems = root.getIntOr("items", 0);
-                x = root.getIntOr("x", x);
+                savedItems = io.github.profetgit.havingablast.repair.Nbt.intOr(root, "items", 0);
+                x = io.github.profetgit.havingablast.repair.Nbt.intOr(root, "x", x);
                 return m;
             } catch (Exception ex) {
                 System.out.println("[habtest] cannot load the snapshot: " + ex);

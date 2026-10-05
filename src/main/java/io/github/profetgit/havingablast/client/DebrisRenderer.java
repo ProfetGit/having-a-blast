@@ -4,7 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+//? if >=1.21.9 {
 import net.minecraft.client.renderer.state.level.LevelRenderState;
+//?}
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.LightCoordsUtil;
@@ -25,6 +27,8 @@ public final class DebrisRenderer {
     static Object modelSet;
     /** Debris drawn in the last frame, for the demo's curves. */
     public static int drawn;
+    // The frustum this frame's entities are culled with (26.2 keeps it in the camera render state).
+    public static net.minecraft.client.renderer.culling.Frustum FRUSTUM;
 
     private DebrisRenderer() {
     }
@@ -32,37 +36,53 @@ public final class DebrisRenderer {
     /** Nanoseconds this mod spent on the render thread since the last read (submit, bake, the FX callback, ticks). */
     public static long spentNanos;
 
+    //? if >=1.21.9 {
     public static void submit(PoseStack ps, LevelRenderState st, SubmitNodeCollector c) {
+        //? if >=26.2 {
+        FRUSTUM = st.cameraRenderState.cullFrustum;
+        //?}
+        submit(ps, st.cameraRenderState.pos, st.cameraRenderState.orientation, c);
+    }
+    //?}
+
+    public static void submit(PoseStack ps, Vec3 cam, Quaternionf rot, SubmitNodeCollector c) {
         long t0 = System.nanoTime();
         try {
-            submitTimed(ps, st, c);
+            submitTimed(ps, cam, rot, c);
         } finally {
             spentNanos += System.nanoTime() - t0;
         }
     }
 
-    static void submitTimed(PoseStack ps, LevelRenderState st, SubmitNodeCollector c) {
+    static void submitTimed(PoseStack ps, Vec3 cam, Quaternionf rot, SubmitNodeCollector c) {
         Minecraft mc = Minecraft.getInstance();
         ClientLevel level = mc.level;
         drawn = 0;
         if (level == null || Blasts.blasts.isEmpty() && Rebuild.FLYING.isEmpty() && Boom.POOFS.isEmpty()) return;
+        //? if >=26.2 {
         Object set = mc.getModelManager().getBlockModelSet();
+        //?}
+        //? if >=1.21.5 <26.2 {
+        /*Object set = mc.getModelManager().getMissingBlockStateModel();
+        *///?}
+        //? if <1.21.5 {
+        /*Object set = mc.getModelManager().getMissingModel();
+        *///?}
         if (set != modelSet) {
             Blasts.clearModels();
             modelSet = set;
         }
         float now = Blasts.clock(mc.getDeltaTracker().getGameTimeDeltaPartialTick(false));
-        Vec3 cam = st.cameraRenderState.pos;
         for (Blast b : Blasts.blasts) {
             if (Float.isNaN(b.t0)) b.t0 = now;
         }
         Blasts.bakePending(level, now);
-        Boom.submit(now, cam, st.cameraRenderState.orientation, ps, c, level);
+        Boom.submit(now, cam, rot, ps, c, level);
         Rebuild.draw(now, cam, ps, c, level);
         for (Blast b : Blasts.blasts) {
             float t = now - b.t0;
             Rim.draw(b, t, cam, ps, c, level);
-            var frustum = st.cameraRenderState.cullFrustum;
+            var frustum = FRUSTUM;
             for (Debris d : b.debris) {
                 if (!d.dead) draw(d, t, cam, ps, c, level, frustum);
             }
@@ -210,27 +230,30 @@ public final class DebrisRenderer {
     static int lightAt(ClientLevel level, double x, double y, double z) {
         MP.set(Math.floor(x), Math.floor(y), Math.floor(z));
         if (!level.getBlockState(MP).isSolidRender()) {
-            return LightCoordsUtil.pack(level.getBrightness(LightLayer.BLOCK, MP), level.getBrightness(LightLayer.SKY, MP));
+            return Compat.worldLight(level, MP);
         }
         int bl = 0, sk = 0;
         int bx = MP.getX(), by = MP.getY(), bz = MP.getZ();
         for (int i = 0; i < 6; i++) {
             MP.set(bx + (i == 0 ? 1 : i == 1 ? -1 : 0), by + (i == 2 ? 1 : i == 3 ? -1 : 0), bz + (i == 4 ? 1 : i == 5 ? -1 : 0));
-            bl = Math.max(bl, level.getBrightness(LightLayer.BLOCK, MP));
-            sk = Math.max(sk, level.getBrightness(LightLayer.SKY, MP));
+            int n = Compat.worldLight(level, MP);
+            bl = Math.max(bl, LightCoordsUtil.block(n));
+            sk = Math.max(sk, LightCoordsUtil.sky(n));
         }
         return LightCoordsUtil.pack(bl, sk);
     }
 
-    /**
-     * Sodium draws block models from BlockModelRenderState.submit; a direct submitBlockModel then drew nothing (checked
-     * with Sodium 0.9.2 on 26.3). With it present, the debris go through vanilla's submit (a small list copy per call);
-     * without it, the cached parts go straight to the collector. Fabric API alone (Indigo) is the other way round:
-     * through BlockModelRenderState.submit the debris were invisible (0.2.3), the direct path draws them.
-     */
+    //? if >=26.2 {
+    //
+    // Sodium draws block models from BlockModelRenderState.submit; a direct submitBlockModel then drew nothing (checked
+    // with Sodium 0.9.2 on 26.3). With it present, the debris go through vanilla's submit (a small list copy per call);
+    // without it, the cached parts go straight to the collector. Fabric API alone (Indigo) is the other way round:
+    // through BlockModelRenderState.submit the debris were invisible (0.2.3), the direct path draws them.
+
     static final boolean SLOW = BlastClient.FX.contains("slowpath") || !BlastClient.FX.contains("fastpath")
         && BlastClient.present("net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer");
-
+    //?}
+    //? if >=26.2 {
     static void submitModel(Blasts.Model m, PoseStack ps, SubmitNodeCollector c, int light, int overlay) {
         if (m.fast && !SLOW) {
             if (!m.parts.isEmpty()) c.submitBlockModel(ps, m.type, m.parts, m.tints, light, overlay, 0);
@@ -238,4 +261,23 @@ public final class DebrisRenderer {
             m.rs.submit(ps, c, light, overlay, 0);
         }
     }
+    //?}
+    //? if <26.2 {
+    /*static void submitModel(Blasts.Model m, PoseStack ps, SubmitNodeCollector c, int light, int overlay) {
+        Compat.geometry(c, ps, m.type, (pose, vc) -> {
+            for (int i = 0, n = m.quads.size(); i < n; i++) {
+                net.minecraft.client.renderer.block.model.BakedQuad q = m.quads.get(i);
+                int ti = q.tintIndex();
+                float r = 1, g = 1, b = 1;
+                if (ti >= 0 && ti < m.tints.length) {
+                    int col = m.tints[ti];
+                    r = (col >> 16 & 255) / 255f;
+                    g = (col >> 8 & 255) / 255f;
+                    b = (col & 255) / 255f;
+                }
+                vc.putBulkData(pose, q, r, g, b, 1f, light, overlay);
+            }
+        });
+    }
+*///?}
 }
