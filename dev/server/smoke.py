@@ -31,10 +31,13 @@ FAMILY = {"fabric": "fabric", "quilt": "fabric", "neoforge": "neoforge", "forge"
 
 
 def jar(mc: str, loader: str) -> Path:
-    found = sorted((ROOT / "dist").glob(f"havingablast-*+{mc}-{FAMILY[loader]}.jar"))
-    if len(found) != 1:
-        sys.exit(f"expected one {mc}-{FAMILY[loader]} jar in {ROOT / 'dist'} (./gradlew dist), found {[f.name for f in found]}")
-    return found[0]
+    # The jar of the version in gradle.properties: dist/ keeps older builds, and testing one of those would pass
+    # against code that isn't the current source.
+    version = re.search(r"^mod\.version=(.+)$", (ROOT / "gradle.properties").read_text(), re.M).group(1).strip()
+    want = ROOT / "dist" / f"havingablast-{version}+{mc}-{FAMILY[loader]}.jar"
+    if not want.is_file():
+        sys.exit(f"no {want.name} in {ROOT / 'dist'}: run ./gradlew dist first")
+    return want
 
 
 def run(mc: str, loader: str, port: int, cmds: list[str], props: str = "", extra_jvm=()) -> tuple[bool, list[str], Path]:
