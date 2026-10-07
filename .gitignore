@@ -23,3 +23,6 @@ dev/icon/bg_options.png
 dev/icon/review/
 # release art: Modrinth icon, banner (docs/banner.gif is the committed copy)
 dev/icon/out/
+release-art/
+dev/icon/frames60/
+dev/icon/banner_frames60/
