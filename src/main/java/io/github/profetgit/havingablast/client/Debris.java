@@ -45,10 +45,6 @@ final class Debris {
     final Vector3f launchDir = new Vector3f();
     float launchSpeed;
     float light = -1, sky = -1;
-    /** The ground under the piece for its shadow, found again when the piece enters another block cell. */
-    long gKey;
-    boolean gSet;
-    double gY;
     /** Hidden item drops that appear when this debris pops. */
     final it.unimi.dsi.fastutil.ints.IntArrayList items = new it.unimi.dsi.fastutil.ints.IntArrayList(0);
 

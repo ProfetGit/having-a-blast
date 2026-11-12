@@ -79,8 +79,6 @@ public final class DebrisRenderer {
         Blasts.bakePending(level, now);
         Boom.submit(now, cam, rot, ps, c, level);
         Rebuild.draw(now, cam, ps, c, level);
-        shadowsOn = Shadows.enabled();
-        Shadows.begin();
         for (Blast b : Blasts.blasts) {
             float t = now - b.t0;
             Rim.draw(b, t, cam, ps, c, level);
@@ -89,7 +87,6 @@ public final class DebrisRenderer {
                 if (!d.dead) draw(d, t, cam, ps, c, level, frustum);
             }
         }
-        Shadows.submit(ps, cam.x, cam.y, cam.z, c);
     }
 
     static float smooth(float x) {
@@ -170,7 +167,6 @@ public final class DebrisRenderer {
         // off screen: not submitted (the pop above still runs, so its sound and drops happen on time)
         if (frustum != null && !frustum.isVisible(new net.minecraft.world.phys.AABB(P[0] - 1, P[1] - 1, P[2] - 1, P[0] + 1, P[1] + 1, P[2] + 1))) return;
         int light = light(d, level);
-        if (shadowsOn) shadow(d, scale, sxz, cam, level);
         ps.pushPose();
         ps.translate(P[0] - cam.x, P[1] - cam.y, P[2] - cam.z);
         if (sy != 1 || sxz != 1) {
@@ -192,26 +188,6 @@ public final class DebrisRenderer {
         submitModel(d.model, ps, c, light, overlay);
         ps.popPose();
         drawn++;
-    }
-
-    static boolean shadowsOn;
-
-    /** The soft blob under a piece: it shrinks and fades with the height above the ground, and with the light there. */
-    static void shadow(Debris d, float scale, float sxz, Vec3 cam, ClientLevel level) {
-        double dx = P[0] - cam.x, dz = P[2] - cam.z;
-        if (dx * dx + dz * dz > 48 * 48) return;
-        long key = BlockPos.asLong((int) Math.floor(P[0]), (int) Math.floor(P[1]), (int) Math.floor(P[2]));
-        if (!d.gSet || key != d.gKey) {
-            d.gKey = key;
-            d.gSet = true;
-            d.gY = Shadows.ground(level, P[0], P[1], P[2]);
-        }
-        if (Double.isNaN(d.gY)) return;
-        float h = Math.max(0f, (float) (P[1] - d.gY) - scale * 0.5f);
-        float fade = 1 - Math.min(1f, h / 8f);
-        float bright = Math.max(d.light, d.sky) / 15f;
-        float radius = scale * 0.8f * sxz * (1 - 0.35f * Math.min(1f, h / 6f));
-        Shadows.add(P[0], d.gY, P[2], radius, 0.6f * fade * Math.min(1f, 0.25f + bright));
     }
 
     static void pop(Debris d, ClientLevel level) {

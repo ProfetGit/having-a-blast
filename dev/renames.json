@@ -143,7 +143,7 @@
   "from": "SubmitNodeCollector",
   "to": "MultiBufferSource",
   "when": "<1.21.9",
-  "files": "^(Boom|Rim|Rebuild|DebrisRenderer|Compat|Shadows)\\.java$"
+  "files": "^(Boom|Rim|Rebuild|DebrisRenderer|Compat)\\.java$"
  },
  {
   "regex": "Lnet/minecraft/network/PacketProcessor;",
