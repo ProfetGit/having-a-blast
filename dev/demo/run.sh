@@ -29,7 +29,7 @@ GAME="$HERE/.work/game-$TARGET${WORK_TAG:+-$WORK_TAG}"
 
 [ -n "${SKIP_BUILD:-}" ] || [ "$LOADER" = vanilla ] || (cd "$ROOT" && ./gradlew --console=plain -q ":$TARGET:build" -x test)
 ARGS=()
-[ "$LOADER" = vanilla ] || ARGS+=(--jar "$(ls "$ROOT"/versions/"$TARGET"/build/libs/havingablast-*+"$TARGET".jar | head -1)")
+[ "$LOADER" = vanilla ] || ARGS+=(--jar "$(ls "$ROOT"/versions/"$TARGET"/build/libs/havingablast-*+"$TARGET".jar | sort -V | tail -1)")
 IFS=: read -r -a M <<< "${MODS:-}"
 for m in "${M[@]}"; do [ -n "$m" ] && ARGS+=(--mod "$m"); done
 IFS=: read -r -a P <<< "${PACKS:-}"
