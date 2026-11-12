@@ -210,8 +210,8 @@ public final class DebrisRenderer {
         float h = Math.max(0f, (float) (P[1] - d.gY) - scale * 0.5f);
         float fade = 1 - Math.min(1f, h / 8f);
         float bright = Math.max(d.light, d.sky) / 15f;
-        float radius = scale * 0.8f * sxz * (1 - 0.35f * Math.min(1f, h / 6f));
-        Shadows.add(P[0], d.gY, P[2], radius, 0.6f * fade * Math.min(1f, 0.25f + bright));
+        float radius = scale * 1.05f * sxz * (1 - 0.35f * Math.min(1f, h / 6f));
+        Shadows.add(P[0], d.gY, P[2], radius, 0.16f * fade * fade * Math.min(1f, 0.25f + bright));
     }
 
     static void pop(Debris d, ClientLevel level) {

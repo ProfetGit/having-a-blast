@@ -6,6 +6,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
@@ -19,7 +20,8 @@ import org.joml.Vector3f;
  * a mob's shadow. Pieces queue one per frame; the batch is written after all debris are submitted.
  */
 final class Shadows {
-    static final Identifier TEX = Identifier.withDefaultNamespace("textures/misc/shadow.png");
+    static final Identifier TEX = Identifier.fromNamespaceAndPath("havingablast", "fx/blob");
+    static boolean failed;
     static final int MAX_DROP = 12;
     static RenderType type;
     static float[] q = new float[5 * 256];
@@ -66,7 +68,11 @@ final class Shadows {
 
     static void submit(PoseStack ps, double cx, double cy, double cz, SubmitNodeCollector c) {
         if (n == 0) return;
-        if (type == null) type = RenderTypes.entityShadow(TEX);
+        if (type == null && !failed) load();
+        if (type == null) {
+            n = 0;
+            return;
+        }
         final int count = n;
         final float[] data = q;
         Compat.geometry(c, ps, type, (pose, vc) -> {
@@ -84,6 +90,19 @@ final class Shadows {
             }
         });
         n = 0;
+    }
+
+    /** A soft round gradient (dev: textures/fx/blob.png), read from the jar like the FX sheet; vanilla's shadow texture is a hard-edged disc. */
+    static void load() {
+        try (java.io.InputStream in = Shadows.class.getResourceAsStream("/assets/havingablast/textures/fx/blob.png")) {
+            if (in == null) throw new IllegalStateException("missing blob.png");
+            com.mojang.blaze3d.platform.NativeImage img = com.mojang.blaze3d.platform.NativeImage.read(in);
+            Minecraft.getInstance().getTextureManager().register(TEX, new DynamicTexture(() -> "havingablast fx", img));
+            type = RenderTypes.entityShadow(TEX);
+        } catch (Exception e) {
+            failed = true;
+            io.github.profetgit.havingablast.HavingABlast.LOG.error("Having a Blast: cannot load the shadow texture", e);
+        }
     }
 
     private static void vertex(com.mojang.blaze3d.vertex.VertexConsumer vc, org.joml.Matrix4f m, Vector3f nrm, float x, float y, float z, float u, float v, int color) {
