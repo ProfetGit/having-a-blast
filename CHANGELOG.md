@@ -1,9 +1,12 @@
 # Changelog
 
-## 0.2.9 (unreleased)
+## 0.2.9 — 2026-11-12
 
+- Now also runs on Minecraft Java 1.21.1, 1.21.4, 1.21.8 and 1.21.11 (Fabric and Quilt), and on 1.21.11 with NeoForge and Forge. Nothing changes on 26.2 and 26.3 except what is listed below.
 - Flying pieces cast a faint, soft shadow on the ground (it shrinks and fades with height and follows the Entity Shadows video option).
-- On Minecraft Java 1.21.x flying blocks had every face the same brightness; they are shaded by the way each face points in the world as on 26.x (a face turned up is bright however the piece tumbled).
+- Flying blocks on 1.21.x were lit the same on every face; they are now shaded by the way each face points in the world, as on 26.x (a face turned up is bright however the piece tumbled).
+- Flying debris take their light from the game's own light lookup, so light added by other mods (Traveler's Lantern) reaches them like it does blocks and entities.
+- Fixed the mod's textures and text missing on 1.21.1, 1.21.4 and 1.21.8.
 
 ## 0.2.8 (unreleased)
 
