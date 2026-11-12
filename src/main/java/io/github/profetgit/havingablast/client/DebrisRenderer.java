@@ -77,6 +77,9 @@ public final class DebrisRenderer {
             if (Float.isNaN(b.t0)) b.t0 = now;
         }
         Blasts.bakePending(level, now);
+        //? if <26.2 {
+        /*BASE.set(ps.last().pose());
+        *///?}
         Boom.submit(now, cam, rot, ps, c, level);
         Rebuild.draw(now, cam, ps, c, level);
         shadowsOn = Shadows.enabled();
@@ -287,24 +290,32 @@ public final class DebrisRenderer {
     }
     //?}
     //? if <26.2 {
-    /*// The moving-block render type has no lighting by normal (26.x draws through the block-model path, which shades
-    // each face): vanilla's per-face brightness, so a flying block reads as a cube.
-    static float faceShade(net.minecraft.core.Direction d, boolean shade) {
-        if (!shade) return 1f;
-        return switch (d) {
-            case DOWN -> 0.5f;
-            case UP -> 1f;
-            case NORTH, SOUTH -> 0.8f;
-            default -> 0.6f;
-        };
+    /*// The moving-block render type has no lighting by normal (26.x draws through the entity pass, which shades by the
+    // face's direction in the world), so it is done here: each face's normal, turned by the piece's current pose into
+    // world axes, lit by vanilla's two entity light directions, so a face that points up is bright however it tumbled.
+    static final org.joml.Matrix3f BASE = new org.joml.Matrix3f(), MODEL = new org.joml.Matrix3f();
+    static final Vector3f NV = new Vector3f();
+    static final float[] SHADE = new float[6];
+    static final Vector3f L0 = new Vector3f(0.2f, 1f, -0.7f).normalize(), L1 = new Vector3f(-0.2f, 1f, 0.7f).normalize();
+
+    static void faceShades(org.joml.Matrix4f pose) {
+        MODEL.set(pose);
+        for (net.minecraft.core.Direction d : net.minecraft.core.Direction.values()) {
+            NV.set(d.getStepX(), d.getStepY(), d.getStepZ());
+            MODEL.transform(NV);
+            BASE.transformTranspose(NV);
+            if (NV.lengthSquared() > 1e-8f) NV.normalize();
+            SHADE[d.ordinal()] = Math.min(1f, 0.4f + 0.6f * (Math.max(0f, NV.dot(L0)) + Math.max(0f, NV.dot(L1))));
+        }
     }
 
     static void submitModel(Blasts.Model m, PoseStack ps, SubmitNodeCollector c, int light, int overlay) {
         Compat.geometry(c, ps, m.type, (pose, vc) -> {
+            faceShades(pose.pose());
             for (int i = 0, n = m.quads.size(); i < n; i++) {
                 net.minecraft.client.renderer.block.model.BakedQuad q = m.quads.get(i);
                 int ti = q.tintIndex();
-                float k = faceShade(q.direction(), q.shade());
+                float k = q.shade() ? SHADE[q.direction().ordinal()] : 1f;
                 float r = k, g = k, b = k;
                 if (ti >= 0 && ti < m.tints.length) {
                     int col = m.tints[ti];

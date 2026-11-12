@@ -3,7 +3,7 @@
 ## 0.2.9 (unreleased)
 
 - Flying pieces cast a faint, soft shadow on the ground (it shrinks and fades with height and follows the Entity Shadows video option).
-- On Minecraft Java 1.21.x flying blocks had every face the same brightness; they are shaded like blocks again (bright top, darker sides) as on 26.x.
+- On Minecraft Java 1.21.x flying blocks had every face the same brightness; they are shaded by the way each face points in the world as on 26.x (a face turned up is bright however the piece tumbled).
 
 ## 0.2.8 (unreleased)
 
