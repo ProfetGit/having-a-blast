@@ -58,6 +58,7 @@
   "addons": {
     "profile": {
       "mods": [
+        "fabric-api-*.jar",
         "sodium-*.jar",
         "iris-*.jar",
         "entityculling-*.jar"
