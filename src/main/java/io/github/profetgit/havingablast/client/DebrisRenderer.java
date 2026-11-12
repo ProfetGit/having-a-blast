@@ -79,6 +79,8 @@ public final class DebrisRenderer {
         Blasts.bakePending(level, now);
         Boom.submit(now, cam, rot, ps, c, level);
         Rebuild.draw(now, cam, ps, c, level);
+        shadowsOn = Shadows.enabled();
+        Shadows.begin();
         for (Blast b : Blasts.blasts) {
             float t = now - b.t0;
             Rim.draw(b, t, cam, ps, c, level);
@@ -87,6 +89,7 @@ public final class DebrisRenderer {
                 if (!d.dead) draw(d, t, cam, ps, c, level, frustum);
             }
         }
+        Shadows.submit(ps, cam.x, cam.y, cam.z, c);
     }
 
     static float smooth(float x) {
@@ -167,6 +170,7 @@ public final class DebrisRenderer {
         // off screen: not submitted (the pop above still runs, so its sound and drops happen on time)
         if (frustum != null && !frustum.isVisible(new net.minecraft.world.phys.AABB(P[0] - 1, P[1] - 1, P[2] - 1, P[0] + 1, P[1] + 1, P[2] + 1))) return;
         int light = light(d, level);
+        if (shadowsOn) shadow(d, scale, sxz, cam, level);
         ps.pushPose();
         ps.translate(P[0] - cam.x, P[1] - cam.y, P[2] - cam.z);
         if (sy != 1 || sxz != 1) {
@@ -188,6 +192,26 @@ public final class DebrisRenderer {
         submitModel(d.model, ps, c, light, overlay);
         ps.popPose();
         drawn++;
+    }
+
+    static boolean shadowsOn;
+
+    /** The soft blob under a piece: it shrinks and fades with the height above the ground, and with the light there. */
+    static void shadow(Debris d, float scale, float sxz, Vec3 cam, ClientLevel level) {
+        double dx = P[0] - cam.x, dz = P[2] - cam.z;
+        if (dx * dx + dz * dz > 48 * 48) return;
+        long key = BlockPos.asLong((int) Math.floor(P[0]), (int) Math.floor(P[1]), (int) Math.floor(P[2]));
+        if (!d.gSet || key != d.gKey) {
+            d.gKey = key;
+            d.gSet = true;
+            d.gY = Shadows.ground(level, P[0], P[1], P[2]);
+        }
+        if (Double.isNaN(d.gY)) return;
+        float h = Math.max(0f, (float) (P[1] - d.gY) - scale * 0.5f);
+        float fade = 1 - Math.min(1f, h / 8f);
+        float bright = Math.max(d.light, d.sky) / 15f;
+        float radius = scale * 0.8f * sxz * (1 - 0.35f * Math.min(1f, h / 6f));
+        Shadows.add(P[0], d.gY, P[2], radius, 0.6f * fade * Math.min(1f, 0.25f + bright));
     }
 
     static void pop(Debris d, ClientLevel level) {
@@ -263,17 +287,30 @@ public final class DebrisRenderer {
     }
     //?}
     //? if <26.2 {
-    /*static void submitModel(Blasts.Model m, PoseStack ps, SubmitNodeCollector c, int light, int overlay) {
+    /*// The moving-block render type has no lighting by normal (26.x draws through the block-model path, which shades
+    // each face): vanilla's per-face brightness, so a flying block reads as a cube.
+    static float faceShade(net.minecraft.core.Direction d, boolean shade) {
+        if (!shade) return 1f;
+        return switch (d) {
+            case DOWN -> 0.5f;
+            case UP -> 1f;
+            case NORTH, SOUTH -> 0.8f;
+            default -> 0.6f;
+        };
+    }
+
+    static void submitModel(Blasts.Model m, PoseStack ps, SubmitNodeCollector c, int light, int overlay) {
         Compat.geometry(c, ps, m.type, (pose, vc) -> {
             for (int i = 0, n = m.quads.size(); i < n; i++) {
                 net.minecraft.client.renderer.block.model.BakedQuad q = m.quads.get(i);
                 int ti = q.tintIndex();
-                float r = 1, g = 1, b = 1;
+                float k = faceShade(q.direction(), q.shade());
+                float r = k, g = k, b = k;
                 if (ti >= 0 && ti < m.tints.length) {
                     int col = m.tints[ti];
-                    r = (col >> 16 & 255) / 255f;
-                    g = (col >> 8 & 255) / 255f;
-                    b = (col & 255) / 255f;
+                    r = (col >> 16 & 255) / 255f * k;
+                    g = (col >> 8 & 255) / 255f * k;
+                    b = (col & 255) / 255f * k;
                 }
                 vc.putBulkData(pose, q, r, g, b, 1f, light, overlay);
             }
