@@ -2,6 +2,7 @@
 
 ## 0.2.8 (unreleased)
 
+- Now also runs on Minecraft Java 1.21.11 with NeoForge, Forge and Quilt (1.21.11 Fabric was already there).
 - Flying debris take their light from the game's own light lookup, so light added by other mods (Traveler's Lantern) reaches them like it does blocks and entities.
 
 ## 0.2.7 (unreleased)

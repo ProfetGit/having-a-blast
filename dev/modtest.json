@@ -91,9 +91,19 @@
       "python3",
       "dev/server/repairtest.py",
       "--mc",
-      "1.21.11,1.21.8,1.21.4,1.21.1",
+      "1.21.8,1.21.4,1.21.1",
       "--loader",
       "fabric",
+      "-j",
+      "2"
+    ],
+    "repair-1.21.11": [
+      "python3",
+      "dev/server/repairtest.py",
+      "--mc",
+      "1.21.11",
+      "--loader",
+      "fabric,quilt,neoforge,forge",
       "-j",
       "2"
     ]
@@ -111,7 +121,8 @@
     "full": {
       "commands": [
         "repair-26.3-fabric",
-        "repair-legacy"
+        "repair-legacy",
+        "repair-1.21.11"
       ],
       "jobs": [
         {
@@ -134,6 +145,15 @@
           "loader": [
             "neoforge",
             "forge"
+          ],
+          "scenes": "smoke"
+        },
+        {
+          "mc": "1.21.11",
+          "loader": [
+            "neoforge",
+            "forge",
+            "quilt"
           ],
           "scenes": "smoke"
         }
@@ -174,6 +194,15 @@
           "addons": [
             "profile"
           ]
+        },
+        {
+          "mc": "1.21.11",
+          "loader": [
+            "neoforge",
+            "forge",
+            "quilt"
+          ],
+          "scenes": "all"
         }
       ]
     }
