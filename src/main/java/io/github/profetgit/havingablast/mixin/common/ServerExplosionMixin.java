@@ -57,6 +57,18 @@ public abstract class ServerExplosionMixin {
     @org.spongepowered.asm.mixin.Final
     private Level level;
 
+    @Shadow
+    @org.spongepowered.asm.mixin.Final
+    private double x;
+
+    @Shadow
+    @org.spongepowered.asm.mixin.Final
+    private double y;
+
+    @Shadow
+    @org.spongepowered.asm.mixin.Final
+    private double z;
+
     @Inject(method = "explode", at = @At("HEAD"))
     private void havingablast$begin(CallbackInfo ci) {
         Explosion ex = (Explosion) (Object) this;

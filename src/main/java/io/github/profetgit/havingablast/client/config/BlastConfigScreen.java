@@ -17,11 +17,39 @@ public final class BlastConfigScreen extends OptionsSubScreen {
         super(parent, Minecraft.getInstance().options, Component.literal("Having a Blast"));
     }
 
+//? if >=1.21 {
     @Override
     protected void addOptions() {
-        Config c = Config.get();
         list.addHeader(Component.literal("Explosions (this client)"));
-        list.addSmall(
+        list.addSmall(explosionOptions());
+        list.addHeader(Component.literal("Auto repair (singleplayer; servers: /havingablast repair)"));
+        list.addSmall(repairOptions());
+    }
+//?} else {
+/*    private net.minecraft.client.gui.components.OptionsList list;
+
+    @Override
+    protected void init() {
+        list = new net.minecraft.client.gui.components.OptionsList(minecraft, width, height, 32, height - 32, 25);
+        list.addSmall(explosionOptions());
+        list.addSmall(repairOptions());
+        addWidget(list);
+        addRenderableWidget(net.minecraft.client.gui.components.Button.builder(net.minecraft.network.chat.CommonComponents.GUI_DONE,
+            b -> minecraft.setScreen(lastScreen)).bounds(width / 2 - 100, height - 27, 200, 20).build());
+    }
+
+    @Override
+    public void render(net.minecraft.client.gui.GuiGraphics g, int mouseX, int mouseY, float partial) {
+        renderBackground(g);
+        list.render(g, mouseX, mouseY, partial);
+        g.drawCenteredString(font, title, width / 2, 20, 0xFFFFFF);
+        super.render(g, mouseX, mouseY, partial);
+    }
+*///?}
+
+    static OptionInstance<?>[] explosionOptions() {
+        Config c = Config.get();
+        return new OptionInstance<?>[] {
             OptionInstance.createBoolean("Cartoon explosions", OptionInstance.cachedConstantTooltip(Component.literal("Debris, fireball, smoke and pops. Off: vanilla explosions.")),
                 c.visuals, v -> c.visuals = v),
             new OptionInstance<>("Intensity", OptionInstance.cachedConstantTooltip(Component.literal("How big the show is: launch power, fireball and smoke size.")),
@@ -31,9 +59,12 @@ public final class BlastConfigScreen extends OptionsSubScreen {
             new OptionInstance<>("Most debris at once", OptionInstance.cachedConstantTooltip(Component.literal("Beyond this, blasted blocks only crumble into particles.")),
                 (caption, v) -> Component.literal("Most debris at once: " + v), new OptionInstance.IntRange(1, 40), Math.max(1, c.maxDebris / 100), v -> c.maxDebris = v * 100),
             OptionInstance.createBoolean("Repair animation", OptionInstance.cachedConstantTooltip(Component.literal("Repaired blocks fly back into place. Off: they just reappear.")),
-                c.repairAnimation, v -> c.repairAnimation = v));
-        list.addHeader(Component.literal("Auto repair (singleplayer; servers: /havingablast repair)"));
-        list.addSmall(
+                c.repairAnimation, v -> c.repairAnimation = v)};
+    }
+
+    static OptionInstance<?>[] repairOptions() {
+        Config c = Config.get();
+        return new OptionInstance<?>[] {
             OptionInstance.createBoolean("Creeper blasts repair", OptionInstance.cachedConstantTooltip(Component.literal("Creeper explosions rebuild themselves after the delay. Off by default.")),
                 c.creeperRepair, v -> c.creeperRepair = v),
             OptionInstance.createBoolean("TNT blasts repair", OptionInstance.cachedConstantTooltip(Component.literal("TNT and TNT minecart explosions rebuild themselves. Off by default: TNT is often used on purpose.")),
@@ -51,7 +82,7 @@ public final class BlastConfigScreen extends OptionsSubScreen {
             new OptionInstance<>("Repair delay", OptionInstance.cachedConstantTooltip(Component.literal("Seconds from the blast until the rebuild starts.")),
                 (caption, v) -> Component.literal("Repair delay: " + v + " s"), new OptionInstance.IntRange(1, 300), Math.max(1, c.repairDelaySeconds), v -> c.repairDelaySeconds = v),
             new OptionInstance<>("Repair speed", OptionInstance.cachedConstantTooltip(Component.literal("How fast the hole rebuilds. 100%: a small hole in about 2 s, a big one at up to 64 blocks a tick.")),
-                (caption, v) -> Component.literal("Repair speed: " + v * 25 + "%"), new OptionInstance.IntRange(1, 16), Math.max(1, Math.min(16, c.repairSpeed / 25)), v -> c.repairSpeed = v * 25));
+                (caption, v) -> Component.literal("Repair speed: " + v * 25 + "%"), new OptionInstance.IntRange(1, 16), Math.max(1, Math.min(16, c.repairSpeed / 25)), v -> c.repairSpeed = v * 25)};
     }
 
     @Override

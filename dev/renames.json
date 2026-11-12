@@ -298,5 +298,178 @@
   "to": "ArmorItems:[{},{},{id:\\\"minecraft:golden_chestplate\\\",count:1},{id:\\\"minecraft:iron_helmet\\\",count:1}],HandItems:[{id:\\\"minecraft:stick\\\",count:1},{}]",
   "when": "<1.21.5",
   "files": "^RepairTest\\.java$"
+ },
+ {
+  "regex": "screens\\.options\\.OptionsSubScreen",
+  "to": "screens.OptionsSubScreen",
+  "when": "<1.21",
+  "files": "^BlastConfigScreen\\.java$"
+ },
+ {
+  "regex": "havingablast\\$brokenByAnything\\(ServerLevel level, DamageSource source\\)",
+  "to": "havingablast$brokenByAnything(DamageSource source)",
+  "when": "<1.21",
+  "files": "^ArmorStandInvoker\\.java$"
+ },
+ {
+  "regex": "havingablast\\$brokenByAnything\\(level, level\\.damageSources\\(\\)\\.generic\\(\\)\\)",
+  "to": "havingablast$brokenByAnything(level.damageSources().generic())",
+  "when": "<1.21",
+  "files": "^Decor\\.java$"
+ },
+ {
+  "regex": "packet\\.getBlockInteraction\\(\\) != net\\.minecraft\\.world\\.level\\.Explosion\\.BlockInteraction\\.KEEP",
+  "to": "true",
+  "when": "<1.21",
+  "files": "^ClientPacketListenerMixin\\.java$"
+ },
+ {
+  "regex": "packet\\.getLargeExplosionParticles\\(\\)",
+  "to": "net.minecraft.core.particles.ParticleTypes.EXPLOSION_EMITTER",
+  "when": "<1.21",
+  "files": "^ClientPacketListenerMixin\\.java$"
+ },
+ {
+  "regex": "packet\\.getSmallExplosionParticles\\(\\)",
+  "to": "net.minecraft.core.particles.ParticleTypes.EXPLOSION",
+  "when": "<1.21",
+  "files": "^ClientPacketListenerMixin\\.java$"
+ },
+ {
+  "regex": "(?:\\bex|\\(\\(Explosion\\) \\(Object\\) this\\))\\.center\\(\\)",
+  "to": "new net.minecraft.world.phys.Vec3(x, y, z)",
+  "when": "<1.21",
+  "files": "^ServerExplosionMixin\\.java$"
+ },
+ {
+  "regex": "(\\w+)\\.transformNormal\\(0, 1, 0, new Vector3f\\(\\)\\)",
+  "to": "$1.normal().transform(new Vector3f(0, 1, 0))",
+  "when": "<1.21",
+  "groups": "1"
+ },
+ {
+  "regex": "vc\\.addVertex\\(m, x, y, z\\)\\.setColor\\(color\\)\\.setUv\\(u, v\\)\\.setOverlay\\(OverlayTexture\\.NO_OVERLAY\\)\\.setLight\\((.+?)\\)\\.setNormal\\(([^;]*?)\\);",
+  "to": "vc.vertex(m, x, y, z).color(color).uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY).uv2($1).normal($2).endVertex();",
+  "when": "<1.21",
+  "groups": "1"
+ },
+ {
+  "regex": "ParticleTypes\\.SMALL_GUST",
+  "to": "ParticleTypes.POOF",
+  "when": "<1.21"
+ },
+ {
+  "regex": "ResourceLocation\\.fromNamespaceAndPath\\(",
+  "to": "new ResourceLocation(",
+  "when": "<1.21"
+ },
+ {
+  "regex": "\\.getTimer\\(\\)\\.getGameTimeDeltaPartialTick\\(false\\)",
+  "to": ".getFrameTime()",
+  "when": "<1.21"
+ },
+ {
+  "regex": "vc\\.putBulkData\\(pose, q, r, g, b, 1f, light, overlay\\)",
+  "to": "vc.putBulkData(pose, q, r, g, b, light, overlay)",
+  "when": "<1.21"
+ },
+ {
+  "regex": "\\.saveWithFullMetadata\\([a-z.]*registryAccess\\(\\)\\)",
+  "to": ".saveWithFullMetadata()",
+  "when": "<1.21"
+ },
+ {
+  "regex": "BlockEntity\\.loadStatic\\(pos, e\\.before, e\\.be, level\\.registryAccess\\(\\)\\)",
+  "to": "BlockEntity.loadStatic(pos, e.before, e.be)",
+  "when": "<1.21"
+ },
+ {
+  "regex": "\\.getServerDirectory\\(\\)",
+  "to": ".getServerDirectory().toPath()",
+  "when": "<1.21"
+ },
+ {
+  "regex": "NbtIo\\.write\\(root, file\\(level\\)\\)",
+  "to": "NbtIo.write(root, file(level).toFile())",
+  "when": "<1.21",
+  "files": "^RepairTest\\.java$"
+ },
+ {
+  "regex": "NbtIo\\.read\\(file\\(level\\)\\)",
+  "to": "NbtIo.read(file(level).toFile())",
+  "when": "<1.21",
+  "files": "^RepairTest\\.java$"
+ },
+ {
+  "regex": ", net\\.minecraft\\.server\\.level\\.ClientInformation\\.createDefault\\(\\)\\);",
+  "to": ");",
+  "when": "<1.21",
+  "files": "^RepairTest\\.java$"
+ },
+ {
+  "regex": "\\.useWithoutItem\\(level, p, ",
+  "to": ".use(level, p, net.minecraft.world.InteractionHand.MAIN_HAND, ",
+  "when": "<1.21",
+  "files": "^RepairTest\\.java$"
+ },
+ {
+  "regex": "public CompoundTag save\\(CompoundTag tag, net\\.minecraft\\.core\\.HolderLookup\\.Provider registries\\)",
+  "to": "public CompoundTag save(CompoundTag tag)",
+  "when": "<1.21",
+  "files": "^Ledger\\.java$"
+ },
+ {
+  "regex": "computeIfAbsent\\(new SavedData\\.Factory<>\\(Ledger::new, \\(tag, registries\\) -> load\\(tag\\), DataFixTypes\\.SAVED_DATA_COMMAND_STORAGE\\), ",
+  "to": "computeIfAbsent(tag -> load(tag), Ledger::new, ",
+  "when": "<1.21",
+  "files": "^Ledger\\.java$"
+ },
+ {
+  "regex": "method = \"useWithoutItem\"",
+  "to": "method = \"use\"",
+  "when": "<1.21",
+  "files": "^BedBlockMixin\\.java$"
+ },
+ {
+  "regex": "components:\\{\\\\\"minecraft:custom_name\\\\\":\\\\\"Blade\\\\\"\\}",
+  "to": "tag:{display:{Name:'\\\"Blade\\\"'}}",
+  "when": "<1.20.5",
+  "files": "^RepairTest\\.java$"
+ },
+ {
+  "regex": "\\bcount:(\\d+)",
+  "to": "Count:$1b",
+  "when": "<1.20.5",
+  "groups": "1"
+ },
+ {
+  "regex": "mc\\.disconnect\\(\\)",
+  "to": "mc.clearLevel(new net.minecraft.client.gui.screens.GenericDirtMessageScreen(net.minecraft.network.chat.Component.empty()))",
+  "when": "<1.21",
+  "files": "^Rejoin\\.java$"
+ },
+ {
+  "regex": "openWorld\\(\\\"scene\\\", \\(\\) -> \\{ \\}\\)",
+  "to": "loadLevel(new net.minecraft.client.gui.screens.TitleScreen(), \"scene\")",
+  "when": "<1.21",
+  "files": "^Rejoin\\.java$"
+ },
+ {
+  "regex": "Nbt\\.list\\(t, \"attributes\"\\)",
+  "to": "Nbt.list(t, \"Attributes\")",
+  "when": "<1.21",
+  "files": "^RepairTest\\.java$"
+ },
+ {
+  "regex": "Nbt\\.stringOr\\(\\(CompoundTag\\) x, \"id\", \"\"\\)",
+  "to": "Nbt.stringOr((CompoundTag) x, \"Name\", \"\")",
+  "when": "<1.21",
+  "files": "^RepairTest\\.java$"
+ },
+ {
+  "regex": "t\\.put\\(\"attributes\", nl\\)",
+  "to": "t.put(\"Attributes\", nl)",
+  "when": "<1.21",
+  "files": "^RepairTest\\.java$"
  }
 ]

@@ -57,6 +57,9 @@ public final class Director {
             }
             return;
         }
+        //? if <1.21.2 {
+        /*if (Rejoin.tick(mc)) return;
+        *///?}
         if (mc.level == null || mc.player == null) return;
         if (mc.getSingleplayerServer() == null) {
             multiplayer(mc);

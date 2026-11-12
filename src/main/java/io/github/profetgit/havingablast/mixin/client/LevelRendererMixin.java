@@ -78,7 +78,7 @@ public abstract class LevelRendererMixin {
     }
 }
 *///?}
-//? if <1.21.2 {
+//? if >=1.21 <1.21.2 {
 /*import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.profetgit.havingablast.client.DebrisRenderer;
 import net.minecraft.client.Camera;
@@ -105,6 +105,36 @@ public abstract class LevelRendererMixin {
     private void havingablast$submitDebris(DeltaTracker delta, boolean b, Camera camera, GameRenderer gr, LightTexture lt, Matrix4f m1, Matrix4f m2, CallbackInfo ci) {
         DebrisRenderer.FRUSTUM = cullingFrustum;
         DebrisRenderer.submit(new PoseStack(), camera.getPosition(), camera.rotation(), Minecraft.getInstance().renderBuffers().bufferSource());
+    }
+}
+*///?}
+//? if <1.21 {
+/*import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.profetgit.havingablast.client.DebrisRenderer;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.culling.Frustum;
+import org.joml.Matrix4f;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+@Mixin(LevelRenderer.class)
+public abstract class LevelRendererMixin {
+    @Shadow
+    private Frustum cullingFrustum;
+
+    // Debris and puffs are drawn right after the entity loop, before the entity buffers are flushed. The PoseStack
+    // that renderLevel gets already carries the camera rotation.
+    @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endLastBatch()V", ordinal = 0))
+    private void havingablast$submitDebris(PoseStack ps, float partial, long nanos, boolean outline, Camera camera, GameRenderer gr, LightTexture lt, Matrix4f projection, CallbackInfo ci) {
+        DebrisRenderer.FRUSTUM = cullingFrustum;
+        DebrisRenderer.submit(ps, camera.getPosition(), camera.rotation(), Minecraft.getInstance().renderBuffers().bufferSource());
     }
 }
 *///?}

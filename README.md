@@ -5,7 +5,7 @@
 <a href="https://ko-fi.com/profetgit"><img src="https://raw.githubusercontent.com/ProfetGit/assets/main/buttons/kofi.webp" alt="Ko-fi" width="23.96%"></a>
 </p>
 
-**One boom, bouncy blocks.** Having a Blast turns every explosion into a cartoon: the blasted blocks burst out as real blocks, fly, bounce and pop into their drops. And if you want, creeper holes fix themselves. For Minecraft 26.2 and 26.3 on Fabric, Quilt, NeoForge and Forge, and for 1.21.1, 1.21.4, 1.21.8 and 1.21.11 on Fabric and Quilt (1.21.11 also on NeoForge and Forge). Install it on your client for the show, on a server for the auto repair, or on both.
+**One boom, bouncy blocks.** Having a Blast turns every explosion into a cartoon: the blasted blocks burst out as real blocks, fly, bounce and pop into their drops. And if you want, creeper holes fix themselves. For Minecraft 26.2 and 26.3 on Fabric, Quilt, NeoForge and Forge, and for 1.20.1, 1.21.1 and 1.21.11 on all four, plus 1.21.4 and 1.21.8 on Fabric and Quilt. Install it on your client for the show, on a server for the auto repair, or on both.
 
 ![Features](https://raw.githubusercontent.com/ProfetGit/having-a-blast/main/docs/desc/title-features.webp)
 
@@ -43,7 +43,7 @@ For operators, on a server with the mod:
 
 ![Installation](https://raw.githubusercontent.com/ProfetGit/having-a-blast/main/docs/desc/title-installation.webp)
 
-Put the jar for your loader in your `mods` folder: Fabric or Quilt, NeoForge or Forge, for Minecraft 26.2 and 26.3 (1.21.11 on all four loaders; 1.21.1, 1.21.4 and 1.21.8 on Fabric or Quilt). No other mods needed. To uninstall, remove the jar; blocks still waiting for repair then stay broken.
+Put the jar for your loader in your `mods` folder: Fabric or Quilt, NeoForge or Forge, for Minecraft 26.2, 26.3, 1.21.11, 1.21.1 or 1.20.1 (1.21.4 and 1.21.8 on Fabric or Quilt only). No other mods needed. To uninstall, remove the jar; blocks still waiting for repair then stay broken.
 
 ![Good to know](https://raw.githubusercontent.com/ProfetGit/having-a-blast/main/docs/desc/title-good-to-know.webp)
 

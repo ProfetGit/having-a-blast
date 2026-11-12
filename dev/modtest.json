@@ -107,6 +107,26 @@
       "fabric,quilt,neoforge,forge",
       "-j",
       "2"
+    ],
+    "repair-1.21.1-loaders": [
+      "python3",
+      "dev/server/repairtest.py",
+      "--mc",
+      "1.21.1",
+      "--loader",
+      "quilt,neoforge,forge",
+      "-j",
+      "2"
+    ],
+    "repair-1.20.1": [
+      "python3",
+      "dev/server/repairtest.py",
+      "--mc",
+      "1.20.1",
+      "--loader",
+      "fabric,quilt,neoforge,forge",
+      "-j",
+      "2"
     ]
   },
   "tiers": {
@@ -123,7 +143,9 @@
       "commands": [
         "repair-26.3-fabric",
         "repair-legacy",
-        "repair-1.21.11"
+        "repair-1.21.11",
+        "repair-1.21.1-loaders",
+        "repair-1.20.1"
       ],
       "jobs": [
         {
@@ -133,7 +155,8 @@
             "1.21.11",
             "1.21.8",
             "1.21.4",
-            "1.21.1"
+            "1.21.1",
+            "1.20.1"
           ],
           "loader": "fabric",
           "scenes": "all"
@@ -151,6 +174,18 @@
         },
         {
           "mc": "1.21.11",
+          "loader": [
+            "neoforge",
+            "forge",
+            "quilt"
+          ],
+          "scenes": "smoke"
+        },
+        {
+          "mc": [
+            "1.21.1",
+            "1.20.1"
+          ],
           "loader": [
             "neoforge",
             "forge",
@@ -183,7 +218,8 @@
             "1.21.11",
             "1.21.8",
             "1.21.4",
-            "1.21.1"
+            "1.21.1",
+            "1.20.1"
           ],
           "loader": "fabric",
           "scenes": "all"
@@ -198,6 +234,18 @@
         },
         {
           "mc": "1.21.11",
+          "loader": [
+            "neoforge",
+            "forge",
+            "quilt"
+          ],
+          "scenes": "all"
+        },
+        {
+          "mc": [
+            "1.21.1",
+            "1.20.1"
+          ],
           "loader": [
             "neoforge",
             "forge",

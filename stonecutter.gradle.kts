@@ -24,6 +24,14 @@ tasks.register<Copy>("dist") {
             exclude("*-sources.jar", "*-dev.jar")
         }
     }
+    // the ForgeGradle 6 side projects (forge-1.21.1, forge-1.20.1) publish their jars here when mt.py / port.py build them;
+    // 1.20.1 NeoForge runs the Forge jar and has a copy of its own
+    from(layout.projectDirectory.dir("versions")) {
+        include("1.21.1-forge/build/libs/havingablast-*.jar", "1.20.1-forge/build/libs/havingablast-*.jar", "1.20.1-neoforge/build/libs/havingablast-*.jar")
+        exclude("**/*-sources.jar", "**/*-dev.jar", "**/*-slim.jar")
+        eachFile { relativePath = RelativePath(true, name) }
+        includeEmptyDirs = false
+    }
     into(layout.projectDirectory.dir("dist"))
     doFirst { delete(layout.projectDirectory.dir("dist")) }
 }

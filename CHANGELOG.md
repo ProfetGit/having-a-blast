@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.10 (unreleased)
+
+- Now also runs on Minecraft Java 1.20.1 (Fabric, Quilt, NeoForge and Forge) and, on 1.21.1, with NeoForge and Forge as well as Fabric and Quilt. Nothing changes on the other versions.
+
 ## 0.2.9 — 2026-11-12
 
 - Now also runs on Minecraft Java 1.21.1, 1.21.4, 1.21.8 and 1.21.11 (Fabric and Quilt), and on 1.21.11 with NeoForge and Forge. Nothing changes on 26.2 and 26.3 except what is listed below.
