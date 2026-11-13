@@ -17,6 +17,11 @@
 - **Works on any server.** The visuals are client-side, so they show on vanilla servers and Realms too.
 - **Light.** Built for 60 fps and above, even with a hundred TNT going off at once.
 
+<p align="center">
+<img src="https://raw.githubusercontent.com/ProfetGit/having-a-blast/main/docs/clips/boom.webp" alt="One TNT: every block takes flight" width="49%">
+<img src="https://raw.githubusercontent.com/ProfetGit/having-a-blast/main/docs/clips/repair.webp" alt="Blown up? It rebuilds itself" width="49%">
+</p>
+
 ![How to use](https://raw.githubusercontent.com/ProfetGit/having-a-blast/main/docs/desc/title-how-to-use.webp)
 
 Just blow something up. The cartoon explosions are on from the start. To turn on auto repair, open the settings (singleplayer) or use `/havingablast repair` (servers).
